@@ -24,6 +24,7 @@ open import pi-calculus.Syntax ns
 open import pi-calculus.Algebra ns
 open import pi-calculus.semantics.Algebra ns
 open import pi-calculus.semantics.MapProcLemmata ns
+open import pi-calculus.semantics.Dynamics ns
 
 open StepLemmata Proc (\ α n → ProcPi-alg n) (mapProc _ _)
 open Synch'
@@ -620,236 +621,159 @@ module _ (ih : ▹ StructCong ProcPi-alg (mapProc _ _) _≡_) where
     \ _ _ eq → swap-inj _ _ (lift-inj (_ , swap-inj) _ _ eq)
 
 
-  postulate
-    stepν-swap : ∀ {n} (aP : Step (\ n → ▹ Proc n) (suc (suc n)))
-      → bind (stepν aP) stepν ≡ bind (stepν (mapSProc' _ _ swap aP)) stepν
---   stepν-swap (`out ch z P) with canNu? (out ch z)
---   stepν-swap aP@(`out ._ z P) | nope (out refl') with decName (fresh _) (swapS z)
---   ... | yes q = sym (cong stepνF r ∙ no-stepν (bout refl'))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.out (snoc-fresh _ _) (sym q)) refl) ∙ stepν-out-fresh
---   ... | no ¬q = sym (cong′ stepνF r ∙ no-stepν (out refl'))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.out (snoc-fresh _ _) (sym (ι-down \ eq → ¬q (sym eq)))) refl) ∙ stepν-out _ _ _
---   stepν-swap aP@(`out _ _ P) | out {_} {_} {ch} {z} refl' refl' with canNu? (out ch z)
---   stepν-swap aP@(`out _ _ P) | out {_} {_} {ch} {z} refl' refl' | out refl' refl' = refl ∙
---    sym (cong′ stepνF r ∙ stepν-out _ _ _ ∙ cong′ η (StepPath refl refl (later-ext (\ α → sym (ih α .swapνX)))))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.out (swapS-ιι _) (swapS-ιι _)) refl) ∙ stepν-out _ _ _
---   stepν-swap aP@(`out _ _ P) | out {_} {_} {ch} {z} refl' refl' | out2 refl' refl' = cong′ η (StepPath refl refl
---              (later-ext (\ α → cong νX (sym (mapmapProc' _ _ _ (_ , swapS-inj) (_ , swapS-inj) (P α) ∙ cong₂ (mapProc' _ _) (funExt swapswapS) refl ∙ mapProc'-id _ _)))))
---     ∙ sym (cong′ stepνF r ∙ stepν-bout)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.out (swapS-ιι _) (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ stepν-out-fresh
---   stepν-swap aP@(`out _ _ P) | out {_} {_} {ch} {z} refl' refl' | nope (out refl') = sym (cong′ stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong Label'.out (snoc-ι _ _ _ ∙ snoc-fresh _ _) <* _) refl) ∙ no-stepν (out refl')
---   stepν-swap aP@(`out _ z P) | out2 {_} {_} {ch} refl' refl' with canNu? (bout ch)
---   stepν-swap aP@(`out _ z P) | out2 {_} {ch} refl' refl' | bout refl' = sym (cong′ stepνF r ∙ stepν-out-fresh)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.out (swapS-ιι _) (snoc-fresh _ _)) refl) ∙ stepν-out _ _ _
---   stepν-swap aP@(`out _ z P) | out2 {_} {ch} refl' refl' | nope (bout refl') = sym (cong′ stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.out (snoc-ι _ _ _ ∙ snoc-fresh _ _) (snoc-fresh _ _ )) refl) ∙ no-stepν (out refl')
---   stepν-swap aP@(`bout ch0 P) with canNu? (bout ch0)
---   stepν-swap aP@(`bout ch0 P) | bout {_} {ch} refl' with canNu? (bout ch)
---   stepν-swap aP@(`bout ch0 P) | bout {_} {ch} refl' | bout {_} {ch'} refl' = sym (cong stepνF r ∙ stepν-bout ∙ cong′ η (StepPath refl refl (later-ext \ α →
---     cong νX (ν-map _ _ (_ , swapS-inj) _ ∙ cong νX (mapmapProc' _ _ _ (_ , liftS-inj (_ , swapS-inj)) (_ , swapS-inj) _
---                                                    ∙ mapmapProc' _ _ _ liftS-swapS-Inj (_ , liftS-inj (_ , swapS-inj)) _
---       ∙ cong₂ (mapProc' _ _) (funExt lift-vs-swap) refl ∙ sym (mapmapProc' _ _ _ (swapS , swapS-inj) liftS-swapS-Inj (P α)) ))
---       ∙ sym (ih α .swapνX) ∙ sym (cong νX (ν-map _ _ (_ , swapS-inj) _ ∙ cong νX (mapmapProc' _ _ _ (_ , liftS-inj (_ , swapS-inj)) (_ , swapS-inj) (P α)))))))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong′ Label'.bout (swapS-ιι ch')) refl) ∙ stepν-bout
---   stepν-swap aP@(`bout ch0 P) | bout {_} {ch} refl' | nope (bout refl') = sym (cong stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong′ Label'.bout (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (bout refl')
---   stepν-swap aP@(`bout ch0 P) | nope (bout refl') = sym (cong stepνF r ∙ no-stepν (bout refl'))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong′ Label'.bout (snoc-fresh _ _)) refl) ∙ stepν-bout
---   stepν-swap aP@(`inp ch0 z0 P) with canNu? (inp ch0 z0)
---   ... | inp {_} {_} {ch} {z} refl' refl' with canNu? (inp ch z)
---   ... | nope (inp (_⊎_.inl refl')) = sym (cong stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (snoc-ι _ _ _ ∙ snoc-fresh _ _) (snoc-ι _ _ _)) refl) ∙ no-stepν (inp (_⊎_.inl refl'))
---   ... | nope (inp (_⊎_.inr refl')) = sym (cong stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (snoc-ι _ _ _) (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (inp (_⊎_.inr refl'))
---   ... | inp refl' refl' = sym (cong stepνF r ∙ stepν-inp _ _ _ ∙ cong′ η (StepPath refl refl (later-ext \ α → sym (ih α .swapνX))))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (swapS-ιι _) (swapS-ιι _)) refl) ∙ stepν-inp _ _ _
---   stepν-swap aP@(`inp ch0 z0 P) | nope (inp (_⊎_.inl refl')) with decName (fresh _) (swapS z0)
---   ... | yes q = sym (cong stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (snoc-fresh _ _) (sym q)) refl) ∙ no-stepν (inp (_⊎_.inr refl'))
---   ... | no ¬q = sym (cong stepνF r ∙ no-stepν (inp (_⊎_.inl refl')))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (snoc-fresh _ _) (sym (ι-down (\ eq → ¬q (sym eq))))) refl) ∙ stepν-inp _ _ _
---   stepν-swap aP@(`inp ch0 z0 P) | nope (inp (_⊎_.inr refl')) with decName (fresh _) (swapS ch0)
---   ... | yes q = sym (cong stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (sym q) (snoc-fresh _ _)) refl) ∙ no-stepν (inp (_⊎_.inl refl'))
---   ... | no ¬q = sym (cong stepνF r ∙ no-stepν (inp (_⊎_.inr refl')))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong₂ Label'.inp (sym (ι-down (\ eq → ¬q (sym eq)))) (snoc-fresh _ _)) refl) ∙ stepν-inp _ _ _
---   stepν-swap aP@(`binp ch0 P) with canNu? (binp ch0)
---   ... | binp {_} {ch} refl' with canNu? (binp ch)
---   ... | binp {_} {ch2} refl' = sym (cong′ stepνF r ∙ stepν-binp ∙ cong′ η (StepPath refl refl (later-ext \ α →
---     cong νX (ν-map _ _ (_ , swapS-inj) _ ∙ cong νX (mapmapProc' _ _ _ (_ ,  liftS-inj (_ , swapS-inj)) (_ , swapS-inj) _ ∙ mapmapProc' _ _ _ liftS-swapS-Inj (_ , liftS-inj (_ , swapS-inj)) _
---       ∙ cong₂ (mapProc' _ _) (funExt lift-vs-swap) refl ∙ sym (mapmapProc' _ _ _ (swapS , swapS-inj) liftS-swapS-Inj (P α)) ))
---       ∙ sym (ih α .swapνX) ∙ sym (cong νX (ν-map _ _ (_ , swapS-inj) _ ∙ cong νX (mapmapProc' _ _ _ (_ , liftS-inj (_ , swapS-inj)) (_ , swapS-inj) (P α))))
---     )))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong Label'.binp (swapS-ιι ch2)) refl) ∙ stepν-binp
---   ... | nope (binp refl') = sym (cong′ stepνF r)
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong Label'.binp (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (binp refl')
---   stepν-swap aP@(`binp ch0 P) | nope (binp refl') = sym (cong′ stepνF r ∙ no-stepν (binp refl'))
---     where
---      r : stepν (mapSProc' _ _ swapS aP) ≡ _
---      r = cong′ stepν (StepPath refl (cong Label'.binp (snoc-fresh _ _)) refl) ∙ stepν-binp
---   stepν-swap (`τ P) = cong′ η (cong′ `τ (later-ext \ α → ih α .swapνX))
-
---   stepν-swap : ∀ {n} (aP : Step (\ n → ▹ Proc n) (suc (suc n))) →
---       bind (stepν aP) stepν ≡ bind (stepν (mapSProc' _ _ swap aP)) stepν
---   stepν-swap (a , P) with canNu? a
---   ... | out {a = a} {a'} eq with canNu? (out (swap a'))
---   ... | out {a = b}{b'} eq2 with canNu? (out b) | canNu? (out a)
---   ... | out {a = a₁} eq' | out {a = a₂} eq'' =
---     cong η (StepPath (λ i → out (p i))
---                      (later-ext λ α → ih α .swapνX))
---     where        
---       p' : ι (ι a₂) ≡ ι (ι a₁)
---       p' =
---         sym (swap-ιι a₂)
---         ∙ (λ i → swap (ι (eq'' (~ i))))
---         ∙ (λ i → swap (eq (~ i)))
---         ∙ eq2
---         ∙ λ i → ι (eq' i)
-        
---       p : a₂ ≡ a₁
---       p = ι-inj _ _ (ι-inj _ _ p')          
---   ... | out eq' | nope (out eq'') = ⊥-rec (fresh-ι p)
---     where
---       p : ι b ≡ fresh (suc _)
---       p =
---         sym eq2
---         ∙ (λ i → swap (eq i))
---         ∙ snoc-ι _ _ _
---         ∙ (λ i → snoc (λ x → ι (ι x)) (fresh (suc _)) (eq'' i))
---         ∙ snoc-fresh _ _
---   ... | nope (out eq') | out {a = a₂} eq'' = ⊥-rec (fresh-ι (ι-inj _ _ p))
---     where        
---       p : ι (ι a₂) ≡ ι (fresh _)
---       p = 
---         sym (swap-ιι a₂)
---         ∙ (λ i → swap (ι (eq'' (~ i))))
---         ∙ (λ i → swap (eq (~ i)))
---         ∙ eq2
---         ∙ λ i → ι (eq' i)
---   ... | nope (out _) | nope (out _) = refl
---   stepν-swap (._ , P) | out {a = a}{a'} eq | nope (out eq') with canNu? (out a)
---   ... | out eq'' = ⊥-rec (fresh-ι (sym p))
---     where
---       p : fresh (suc _) ≡ ι (ι _)
---       p =
---         sym eq'
---         ∙ (λ i → swap (eq i))
---         ∙ snoc-ι _ _ _
---         ∙ (λ i → snoc (λ x → ι (ι x)) (fresh (suc _)) (eq'' i))
---         ∙ snoc-ι _ _ _
---   ... | nope (out eq'') = refl
---   stepν-swap (._ , P) | inp {a = a}{a'} eq with canNu? (inp (swap a'))
---   ... | inp {a = b}{b'} eq2 with canNu? (inp b) | canNu? (inp a)
---   ... | inp eq' | inp eq'' = 
---     cong η (StepPath (λ i → inp (p i))
---                      (later-ext λ α → ih α .swapνX))
---     where        
---       p' : ι (ι _) ≡ ι (ι _)
---       p' =
---         sym (swap-ιι _)
---         ∙ (λ i → swap (ι (eq'' (~ i))))
---         ∙ (λ i → swap (eq (~ i)))
---         ∙ eq2
---         ∙ λ i → ι (eq' i)
-        
---       p : _ ≡ _
---       p = ι-inj _ _ (ι-inj _ _ p')          
---   ... | inp eq' | nope (inp eq'') = ⊥-rec (fresh-ι p)
---     where
---       p : ι b ≡ fresh (suc _)
---       p =
---         sym eq2
---         ∙ (λ i → swap (eq i))
---         ∙ snoc-ι _ _ _
---         ∙ (λ i → snoc (λ x → ι (ι x)) (fresh (suc _)) (eq'' i))
---         ∙ snoc-fresh _ _
---   ... | nope (inp eq') | inp eq'' = ⊥-rec (fresh-ι (ι-inj _ _ p))
---     where        
---       p : ι (ι _) ≡ ι (fresh _)
---       p = 
---         sym (swap-ιι _)
---         ∙ (λ i → swap (ι (eq'' (~ i))))
---         ∙ (λ i → swap (eq (~ i)))
---         ∙ eq2
---         ∙ λ i → ι (eq' i)
---   ... | nope (inp eq') | nope (inp eq'') = refl
---   stepν-swap (._ , P) | inp {a = a}{a'} eq | nope (inp eq') with canNu? (inp a)
---   ... | inp eq'' = ⊥-rec (fresh-ι (sym p))
---     where
---       p : fresh (suc _) ≡ ι (ι _)
---       p =
---         sym eq'
---         ∙ (λ i → swap (eq i))
---         ∙ snoc-ι _ _ _
---         ∙ (λ i → snoc (λ x → ι (ι x)) (fresh (suc _)) (eq'' i))
---         ∙ snoc-ι _ _ _
---   ... | nope (inp eq'') = refl
---   stepν-swap (._ , P) | τ = cong η (StepPath refl (later-ext λ α → ih α .swapνX))
---   stepν-swap (._ , P) | nope (out {a'} eq) with canNu? (out (swap a'))
---   ... | nope (out eq') = refl
---   ... | out {a = a} eq' with canNu? (out a)
---   ... | nope (out eq'') = refl
---   ... | out eq'' = ⊥-rec (fresh-ι (ι-inj _ _ (sym p)))
---     where
---       p : ι (fresh _) ≡ ι (ι _)
---       p =
---         sym (snoc-fresh _ _)          
---         ∙ (λ i → swap (eq (~ i)))
---         ∙ eq'
---         ∙ λ i → ι (eq'' i)
---   stepν-swap (._ , P) | nope (inp {a'} eq) with canNu? (inp (swap a'))
---   ... | nope (inp eq') = refl
---   ... | inp {a = a} eq' with canNu? (inp a)
---   ... | nope (inp eq'') = refl
---   ... | inp eq'' = ⊥-rec (fresh-ι (ι-inj _ _ (sym p)))
---     where
---       p : ι (fresh _) ≡ ι (ι _)
---       p =
---         sym (snoc-fresh _ _)          
---         ∙ (λ i → swap (eq (~ i)))
---         ∙ eq'
---         ∙ λ i → ι (eq'' i)
-
-
+  stepν-swap : ∀ {n} (aP : Step (\ n → ▹ Proc n) (suc (suc n)))
+    → bind (stepν aP) stepν ≡ bind (stepν (mapSProc' _ _ swap aP)) stepν
+  stepν-swap (out ch z , P) with canNu? (out ch z)
+  stepν-swap {n} aP@(`out ch z P) | nope (out r') with decName (fresh _) (swap z)
+  ... | yes q =
+    J (λ ch eq → ø ≡ bind (stepν (out (swap ch) (swap z) , (λ α → Fold (mapProc' _ _ swap (Unfold (P α)))))) stepν)
+       (sym (cong stepνF r ∙ no-stepν (bout refl)))
+       (sym r')
+    where
+      r : stepν (mapSProc' _ _ swap (`out (fresh _) z P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong₂ out (snoc-fresh _ _) (sym q)) refl) ∙ stepν-out-fresh
+  ... | no ¬q =
+    J (λ ch eq → ø ≡ bind (stepν (out (swap ch) (swap z) , (λ α → Fold (mapProc' _ _ swap (Unfold (P α)))))) stepν)
+      (sym (cong′ stepνF r ∙ no-stepν (out refl)))
+      (sym r')
+    where
+     r : stepν (mapSProc' _ _ swap (`out (fresh _) z P)) ≡ _
+     r = cong′ stepν (StepPath refl ((λ i → out (snoc-fresh (snoc (λ x → ι (ι x)) (fresh (suc n))) (ι (fresh n)) i) (sym (ι-down \ eq → ¬q (sym eq)) i)))
+       refl) ∙ stepν-out (fresh _) _ (λ α → Fold (mapProc' _ _ swap (Unfold (P α))))
+  stepν-swap {n} (`out ch z P) | out {ch = ch'}{z'} p q with canNu? (out ch' z')
+  ... | out {ch = ch₁}{z₁} r r' =
+    sym (cong′ stepνF s ∙ stepν-out _ _ _ ∙ cong′ η (StepPath refl refl (later-ext (\ α → sym (ih α .swapνX)))))
+    ∙ λ i → bind (stepν (out (swap (sym (p ∙ cong′ ι r) i)) (swap (sym (q ∙ cong′ ι r') i)) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν
+    where
+     s : stepν (mapSProc' _ _ swap (out _ _ , P)) ≡ _
+     s = cong′ stepν (StepPath refl (λ i → out (swap-ιι ch₁ i) (swap-ιι z₁ i)) refl) ∙ stepν-out _ _ _
+  ... | out2 {ch = ch₁} r r' =
+   (cong′ η (StepPath refl refl
+             (later-ext (\ α → cong νProc (sym (mapmapProc _ _ _ (_ , swap-inj) (_ , swap-inj) (P α) ∙ cong₂ (mapProc _ _) (funExt swapswap) refl ∙ mapProc-id _ _)))))
+     ∙ sym (cong′ stepνF s ∙ stepν-bout))
+     ∙ λ i → bind (stepν (out (swap (sym (p ∙ cong′ ι r) i)) (swap (sym (q ∙ cong′ ι r') i)) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν
+    where
+      s : stepν (mapSProc' _ _ swap (out _ _ , P)) ≡ _
+      s = cong′ stepν (StepPath refl (cong′ (out (swap (ι (ι ch₁)))) (snoc-ι _ _ _ ∙ snoc-fresh _ _) ∙ λ i → out (swap-ιι ch₁ i) (fresh (suc n))) refl) ∙ stepν-out-fresh
+  ... | nope (out r) =
+    sym (cong′ stepνF s)
+    ∙ λ i → bind (stepν (out (swap (sym (p ∙ cong′ ι r) i)) (swap (q (~ i))) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν
+    where
+      s : stepν (mapSProc' _ _ swap (out _ _ , P)) ≡ _
+      s = cong′ stepν (StepPath refl (cong′ (λ a → out a (swap (ι z'))) (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (out refl)
+  stepν-swap (`out ch z P) | out2 {ch = ch'} p q with canNu? (bout ch')
+  ... | bout {ch = ch₁} r =
+    sym (cong′ stepνF s ∙ stepν-out-fresh)
+    ∙ λ i → bind (stepν (out (swap (sym (p ∙ cong′ ι r) i)) (swap (q (~ i))) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν    
+    where
+      s : stepν (mapSProc' _ _ swap (out _ _ , P)) ≡ _
+      s = cong′ stepν (StepPath refl (cong′ (out (swap (ι (ι ch₁)))) (snoc-fresh _ _) ∙ cong′ (λ a → out a (ι (fresh _))) (swap-ιι ch₁)) refl) ∙ stepν-out _ _ _
+  ... | nope (bout r) = 
+    sym (cong′ stepνF s)
+    ∙ λ i → bind (stepν (out (swap (sym (p ∙ cong′ ι r) i)) (swap (q (~ i))) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν    
+    where
+      s : stepν (mapSProc' _ _ swap (out _ _ , P)) ≡ _
+      s = cong′ stepν (StepPath refl (cong′ (out (swap (ι (fresh _)))) (snoc-fresh _ _) ∙ cong′ (λ a → out a (ι (fresh _))) (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (out refl)  
+  stepν-swap (bout ch0 , P) with canNu? (bout ch0)
+  stepν-swap (`bout ch0 P) | bout {ch = ch} p with canNu? (bout ch)
+  ... | bout {ch = ch'} q =
+    sym (cong stepνF r ∙ stepν-bout ∙ cong′ η (StepPath refl refl (later-ext \ α →
+    cong νProc (ν-map _ _ (_ , swap-inj) _ ∙ cong′ νProc (mapmapProc _ _ _ (_ , lift-inj (_ , swap-inj)) (_ , swap-inj) _
+                                                   ∙ mapmapProc _ _ _ lift-swap-Inj (_ , lift-inj (_ , swap-inj)) _
+      ∙ cong₂ (mapProc _ _) (funExt lift-vs-swap) refl ∙ sym (mapmapProc _ _ _ (swap , swap-inj) lift-swap-Inj (P α)) ))
+      ∙ sym (ih α .swapνX) ∙ sym (cong νProc (ν-map _ _ (_ , swap-inj) _ ∙ cong νProc (mapmapProc _ _ _ (_ , lift-inj (_ , swap-inj)) (_ , swap-inj) (P α)))))))
+    ∙ λ i → bind (stepν (bout (swap (sym (p ∙ cong′ ι q) i)) , λ α → Fold (mapProc' _ _ (lift swap) (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (bout _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ bout (swap-ιι ch')) refl) ∙ stepν-bout
+  ... | nope (bout q) =
+    sym (cong stepνF r)
+    ∙ λ i → bind (stepν (bout (swap (sym (p ∙ cong′ ι q) i)) , λ α → Fold (mapProc' _ _ (lift swap) (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (bout _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ bout (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (bout refl)  
+  stepν-swap (`bout ch0 P) | nope (bout p) =
+    sym (cong stepνF r ∙ no-stepν (bout refl))
+    ∙ λ i → bind (stepν (bout (swap (p (~ i))) , λ α → Fold (mapProc' _ _ (lift swap) (Unfold (P α))))) stepν    
+    where
+     r : stepν (mapSProc' _ _ swap (bout _ , P)) ≡ _
+     r = cong′ stepν (StepPath refl (cong′ bout (snoc-fresh _ _)) refl) ∙ stepν-bout
+  stepν-swap (inp ch0 z0 , P) with canNu? (inp ch0 z0)
+  ... | inp {ch = ch} {z} p q with canNu? (inp ch z)
+  ... | nope (inp (_⊎_.inl s)) =
+    sym (cong stepνF r)
+    ∙ λ i → bind (stepν (inp (swap (sym (p ∙ cong′ ι s) i)) (swap (q (~ i))) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (inp _ _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ (inp (swap (ι (fresh _)))) (snoc-ι _ _ _) ∙ cong′ (λ a → inp a (snoc (λ x → ι (ι x)) (fresh _) z)) (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (inp (_⊎_.inl refl))
+  ... | nope (inp (_⊎_.inr s)) =
+    sym (cong stepνF r)
+    ∙ λ i → bind (stepν (inp (swap (p (~ i))) (swap (sym (q ∙ cong ι s) i)) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (inp _ _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ (inp (swap (ι ch))) (snoc-ι _ _ _ ∙ snoc-fresh _ _) ∙ cong′ (λ a → inp a _) (snoc-ι _ _ _)) refl) ∙ no-stepν (inp (_⊎_.inr refl))
+  ... | inp {ch = ch₁}{z₁}s s' =
+    sym (cong stepνF r ∙ stepν-inp _ _ _ ∙ cong′ η (StepPath refl refl (later-ext \ α → sym (ih α .swapνX))))
+    ∙ λ i → bind (stepν (inp (swap (sym (p ∙ cong ι s) i)) (swap (sym (q ∙ cong ι s') i)) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (inp _ _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (λ i → inp (swap-ιι ch₁ i) (swap-ιι z₁ i)) refl) ∙ stepν-inp _ _ _
+  stepν-swap (inp ch0 z0 , P) | nope (inp (_⊎_.inl p)) with decName (fresh _) (swap z0)
+  ... | yes q =
+    sym (cong stepνF r)
+    ∙ λ i → bind (stepν (inp (swap (sym p i)) (swap z0) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (inp _ _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ (inp (swap (fresh _))) (sym q) ∙ cong′ (λ a → inp a (fresh _)) (snoc-fresh _ _)) refl) ∙ no-stepν (inp (_⊎_.inr refl))
+  ... | no ¬q =
+    J (λ ch eq → ø ≡ bind (stepν (inp (swap ch) (swap z0) , (λ α → Fold (mapProc' _ _ swap (Unfold (P α)))))) stepν)
+      (sym (cong′ stepνF r ∙ no-stepν (inp (_⊎_.inl refl))))
+      (sym p)
+    where
+     r : stepν (mapSProc' _ _ swap (`inp (fresh _) z0 P)) ≡ _
+     r = cong′ stepν (StepPath refl ((λ i → inp (snoc-fresh (snoc (λ x → ι (ι x)) (fresh (suc _))) (ι (fresh _)) i) (sym (ι-down \ eq → ¬q (sym eq)) i)))
+       refl) ∙ stepν-inp (fresh _) _ (λ α → Fold (mapProc' _ _ swap (Unfold (P α))))
+  stepν-swap (inp ch0 z0 , P) | nope (inp (_⊎_.inr p)) with decName (fresh _) (swap ch0)
+  ... | yes q =
+    sym (cong stepνF r)
+    ∙ λ i → bind (stepν (inp (swap ch0) (swap (sym p i)) , λ α → Fold (mapProc' _ _ swap (Unfold (P α))))) stepν        
+    where
+      r : stepν (mapSProc' _ _ swap (inp _ _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ (inp (swap ch0)) (snoc-fresh _ _) ∙ cong′ (λ a → inp a _) (sym q)) refl) ∙ no-stepν (inp (_⊎_.inl refl))
+  ... | no ¬q = 
+    J (λ z0 eq → ø ≡ bind (stepν (inp (swap ch0) (swap z0) , (λ α → Fold (mapProc' _ _ swap (Unfold (P α)))))) stepν)
+      (sym (cong′ stepνF r ∙ no-stepν (inp (_⊎_.inr refl))))
+      (sym p)
+    where
+     r : stepν (mapSProc' _ _ swap (`inp ch0 (fresh _) P)) ≡ _
+     r = cong′ stepν (StepPath refl ((λ i → inp (sym (ι-down \ eq → ¬q (sym eq)) i) (snoc-fresh (snoc (λ x → ι (ι x)) (fresh (suc _))) (ι (fresh _)) i)))
+       refl) ∙ stepν-inp _ (fresh _) (λ α → Fold (mapProc' _ _ swap (Unfold (P α))))
+  stepν-swap (binp ch0 , P) with canNu? (binp ch0)
+  ... | binp {ch = ch} p with canNu? (binp ch)
+  ... | binp {_} {ch2} q =
+    sym (cong′ stepνF r ∙ stepν-binp ∙ cong′ η (StepPath refl refl (later-ext \ α →
+      cong νProc (ν-map _ _ (_ , swap-inj) _ ∙ cong νProc (mapmapProc _ _ _ (_ ,  lift-inj (_ , swap-inj)) (_ , swap-inj) _ ∙ mapmapProc _ _ _ lift-swap-Inj (_ , lift-inj (_ , swap-inj)) _
+       ∙ cong₂ (mapProc _ _) (funExt lift-vs-swap) refl ∙ sym (mapmapProc _ _ _ (swap , swap-inj) lift-swap-Inj (P α)) ))
+       ∙ sym (ih α .swapνX) ∙ sym (cong νProc (ν-map _ _ (_ , swap-inj) _ ∙ cong νProc (mapmapProc _ _ _ (_ , lift-inj (_ , swap-inj)) (_ , swap-inj) (P α))))
+    )))
+    ∙ λ i → bind (stepν (binp (swap (sym (p ∙ cong′ ι q) i)) , λ α → Fold (mapProc' _ _ (lift swap) (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (binp _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ binp (swap-ιι ch2)) refl) ∙ stepν-binp
+  ... | nope (binp q) =
+    sym (cong′ stepνF r)
+    ∙ λ i → bind (stepν (binp (swap (sym (p ∙ cong′ ι q) i)) , λ α → Fold (mapProc' _ _ (lift swap) (Unfold (P α))))) stepν    
+    where
+      r : stepν (mapSProc' _ _ swap (binp _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ binp (snoc-ι _ _ _ ∙ snoc-fresh _ _)) refl) ∙ no-stepν (binp refl)
+  stepν-swap (binp ch0 , P) | nope (binp p) =
+    sym (cong′ stepνF r ∙ no-stepν (binp refl))
+    ∙ λ i → bind (stepν (binp (swap (sym p i)) , λ α → Fold (mapProc' _ _ (lift swap) (Unfold (P α))))) stepν        
+    where
+      r : stepν (mapSProc' _ _ swap (binp _ , P)) ≡ _
+      r = cong′ stepν (StepPath refl (cong′ binp (snoc-fresh _ _)) refl) ∙ stepν-binp
+  stepν-swap (τ , P) = cong′ η (cong′ `τ (later-ext \ α → ih α .swapνX))
+  
   ν-swap : ∀ {n} {P : Proc (suc (suc n))} → νProc (νProc P) ≡ νProc (νProc (mapProc _ _ swap P))
   ν-swap {n} {P} =
     νProc (νProc P)

@@ -72,3 +72,7 @@ module BisimRel (T : ∀ {m n} (P : Pi m) (a : Label m n) (P' : ▹ Pi n) → Se
                   (\ _ → refl)
                   (isProp× isPropSimF isPropSimF)
 
+
+-- Early congruence
+  EarlyCong : ∀ {n} → Pi n → Pi n → Set
+  EarlyCong P Q = ∀ m (σ : Name _ → Name m) → Bisim m (mapPi σ P) (mapPi σ Q)

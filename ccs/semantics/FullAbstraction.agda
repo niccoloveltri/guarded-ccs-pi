@@ -10,7 +10,6 @@ open import Cubical.HITs.PropositionalTruncation as PT
 open import Cubical.Functions.Logic
 open import Cubical.Relation.Nullary
 open import CountablePowerSet
---open import Agda.Builtin.Equality renaming (_≡_ to _≡'_; refl to refl')
 open import Basic
 open import AbsNames
 open import LaterPrims hiding (_∙_)
@@ -33,6 +32,9 @@ open import ccs.Bisim ns
 -- Full abstraction: bisimilarity of two CCS-terms p and q is
 -- equivalent to the path equality of their interpretation in Proc via
 -- the map eval.
+
+
+-- First, bisimilarity is equivalent to path equality.
 module Bisim-≡ where
 
   open CoalgebraCCS'
@@ -140,6 +142,7 @@ module Bisim-≡ where
 open BisimRel piRel
 open Bisim-≡
 
+-- Full abstraction
 fullAbstract : ∀ {n} (P Q : CCS n) → Bisim n P Q ≡ (evalX ProcCCS-alg P ≡ evalX ProcCCS-alg Q)
 fullAbstract {n} P Q =
   Bisim n P Q

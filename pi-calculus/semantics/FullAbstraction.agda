@@ -35,6 +35,8 @@ open import pi-calculus.Bisim ns
 -- equivalent to the path equality of their interpretation in PiMod via
 -- the map evalGM.
 
+
+-- First, bisimilarity is equivalent to path equality.
 module Bisim-≡ where
 
   open CoalgebraPi'
@@ -136,9 +138,7 @@ open BisimRel piRel
 open Bisim-≡
 open PiMod
 
-EarlyCong : ∀ {n} → Pi n → Pi n → Set
-EarlyCong P Q = ∀ m (σ : Name _ → Name m) → Bisim m (mapPi σ P) (mapPi σ Q)
-
+-- Full abstraction
 fullAbstract : ∀ {n} (P Q : Pi n) → EarlyCong P Q ≡ (evalGM P ≡ evalGM Q)
 fullAbstract {n} P Q =
   (∀ m ρ → Bisim m (mapPi ρ P) (mapPi ρ Q))

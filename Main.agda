@@ -156,7 +156,6 @@ module Pi where
   par-map = pi-calculus.semantics.MapProcLemmata.par-map
 
   -- Equality in Proc is closed under structural congruence.
-  -- NB: stepν-swap has to be proved!!!
   import pi-calculus.semantics.StructuralCongruence
 
   ProcStructCong = pi-calculus.semantics.StructuralCongruence.ProcStructCong
