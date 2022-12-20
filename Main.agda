@@ -133,6 +133,7 @@ module Pi where
   import pi-calculus.Bisim
 
   BisimT = pi-calculus.Bisim.BisimRel.Bisim
+  EarlyCong = pi-calculus.Bisim.BisimRel.EarlyCong
 
   -- Semantic processes and their algebra structure.
   import pi-calculus.semantics.Algebra
@@ -168,7 +169,10 @@ module Pi where
   -- The Pi-model structure on PiMod.
   import pi-calculus.semantics.Model
 
+  mapPiMod = pi-calculus.semantics.Model.mapPiMod
+  parPiMod = pi-calculus.semantics.Model.parPiMod
   PiMod-model = pi-calculus.semantics.Model.PiMod-model
+  _[_]↦PiMod_ = pi-calculus.semantics.Model._[_]~>_
 
   -- Syntactic processes have an F-coalgebra structure.
   import pi-calculus.semantics.Coalgebra
