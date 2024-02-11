@@ -210,7 +210,7 @@ module _ (ih : ▹ StructCong ProcPi-alg (mapProc _ _) _≡_) where
               (later-ext (λ α → funExt (λ _ → funExt (λ p → (funExt (λ q → ih α .comm∣∣X {P = q}))))))
              ∙ congS (synch' (λ _ → parProc) (λ _ → νProc) aR') (StepPath refl refl (later-ext (λ α → ih α .comm∣∣X {P = theX aP' α})))
              ∙ sym (synch'-assoc aR' Q aP')
-             ∙ congS (λ x → synch' (λ _ → parProc) (λ _ → νProc) x aP') {y = mapStep (λ m i R' α → parProc (mapProc _ m (i .fst) Q) (R' α)) aR'} (StepPath refl refl (later-ext (λ α → ih α .comm∣∣X {P = theX aR' α})))
+             ∙ congS {y = mapStep (λ m i R' α → parProc (mapProc _ m (i .fst) Q) (R' α)) aR'} (λ x → synch' (λ _ → parProc) (λ _ → νProc) x aP') (StepPath refl refl (later-ext (λ α → ih α .comm∣∣X {P = theX aR' α})))
              ∙ congS (λ (f : ▹ (∀ n → Proc n → Proc n → Proc n)) → synch' (λ α {n} → f α n) (λ _ → νProc) (mapStep (λ m i R' α → parProc (mapProc _ m (i .fst) Q) (R' α)) aR') aP')
                 (later-ext (λ α → funExt (λ _ → funExt (λ p → (funExt (λ q → ih α .comm∣∣X {P = p})))))))))
         ∙ sym (bind-map R _ _)))
