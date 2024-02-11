@@ -99,7 +99,7 @@ mapProc'-eq' n m f p i = mapProc'-eq i n m f p
 mapProc-id : ∀ m Q → mapProc m m (\ x → x) Q ≡ Q
 mapProc-id = fix \ ih m Q → cong Fold (
   mapProc'-eq' _ _ _ _
-  ∙ cong′ (λ x → mapP∞ x (Unfold Q)) (funExt (λ { aQ' →
+  ∙ congS (λ x → mapP∞ x (Unfold Q)) (funExt (λ { aQ' →
       StepPath (mapAct-id _) (later-ext (λ α → ih α _ (theX aQ' α))) }))
   ∙ mapidP∞ (Unfold Q))
 
@@ -111,7 +111,7 @@ mapmapProc = fix \ where
     ∙ cong Fold
       (mapProc'-eq' _ _ _ _
        ∙ mapmapP∞ _ _ (Unfold p)
-       ∙ cong′ (λ x → mapP∞ x (Unfold p)) (funExt (λ { aQ' →
+       ∙ congS (λ x → mapP∞ x (Unfold p)) (funExt (λ { aQ' →
            StepPath (mapmapAct _) (later-ext (λ α → ih α _ _ _ _ _ (theX aQ' α)))})))
     ∙ sym (cong Fold (mapProc'-eq' _ _ _ _))
 
@@ -339,8 +339,8 @@ module _ where
   !Proc-eq : ∀ {n} {P : Proc n}
     → !Proc P ≡ Fold (stepL (Unfold P) (!Proc P) ∪ stepL (synchF (Unfold P) (Unfold P)) (!Proc P))
   !Proc-eq {n} {P} =
-    cong′ (λ x → isCCS-alg.!X (x n) P) (fix-eq ProcCCS-algF) ∙ cong Fold (fix-eq d) ∙ cong Fold (cong₂ _∪_ (cong (stepL (Unfold P))
-          (sym (cong′ (λ x → isCCS-alg.!X (x n) P) (fix-eq ProcCCS-algF))))
-          (cong (stepL (synchF (Unfold P) (Unfold P))) (sym (cong′ (λ x → isCCS-alg.!X (x n) P) (fix-eq ProcCCS-algF)))))
+    congS (λ x → isCCS-alg.!X (x n) P) (fix-eq ProcCCS-algF) ∙ cong Fold (fix-eq d) ∙ cong Fold (cong₂ _∪_ (cong (stepL (Unfold P))
+          (sym (congS (λ x → isCCS-alg.!X (x n) P) (fix-eq ProcCCS-algF))))
+          (cong (stepL (synchF (Unfold P) (Unfold P))) (sym (congS (λ x → isCCS-alg.!X (x n) P) (fix-eq ProcCCS-algF)))))
     where
       d = λ !p → stepL' (Unfold P ∪ synchF (Unfold P) (Unfold P)) (λ α → Fold (!p α))

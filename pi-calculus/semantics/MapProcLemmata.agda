@@ -37,7 +37,7 @@ end-map : ∀ {n m} (f : Name n → Name m) →
       mapProc n m f endProc ≡ endProc
 end-map {n}{m} f =
   cong Fold (mapProc'-eq' _ _ _ _
-            ∙ cong′ (mapProcF (next mapProc') _ _ f) (cong′ Unfold (cong (λ alg → isPi-alg.endX (alg n)) (fix-eq ProcPi-algF)))
+            ∙ congS (mapProcF (next mapProc') _ _ f) (congS Unfold (cong (λ alg → isPi-alg.endX (alg n)) (fix-eq ProcPi-algF)))
               ∙ sym (cong Unfold (cong (λ alg → isPi-alg.endX (alg m)) (fix-eq ProcPi-algF))))
 
 -- mapProc and sumProc.
@@ -45,9 +45,9 @@ sum-map : ∀ {n m} (f : Name n → Name m) P Q →
   mapProc n m f (sumProc P Q) ≡ sumProc (mapProc n m f P) (mapProc n m f Q)
 sum-map {n}{m} f P Q =
   cong Fold (mapProc'-eq' _ _ _ _
-            ∙ cong′ (mapProcF (next mapProc') _ _ f) (cong′ Unfold (cong (λ alg → isPi-alg.sumX (alg n) P Q) (fix-eq ProcPi-algF)))
+            ∙ congS (mapProcF (next mapProc') _ _ f) (congS Unfold (cong (λ alg → isPi-alg.sumX (alg n) P Q) (fix-eq ProcPi-algF)))
             ∙ cong₂ _∪_ (sym (mapProc'-eq' _ _ _ _)) (sym (mapProc'-eq' _ _ _ _))
-            ∙ sym (cong′ Unfold (cong (λ alg → isPi-alg.sumX (alg m) (mapProc _ _ f P) (mapProc _ _ f Q)) (fix-eq ProcPi-algF))))
+            ∙ sym (congS Unfold (cong (λ alg → isPi-alg.sumX (alg m) (mapProc _ _ f P) (mapProc _ _ f Q)) (fix-eq ProcPi-algF))))
 
 -- mapProc and guardProc.
 
@@ -64,10 +64,10 @@ guard-map : ∀ {n m} (f : Inj n m) x y P →
   mapProc n m (fst f) (guardProc x y P) ≡ guardProc (fst f x) (fst f y) (mapProc n m (fst f) P)
 guard-map {n}{m} f x y P =
   cong Fold (mapProc'-eq' _ _ _ _
-            ∙ cong′ (mapProcF (next mapProc') _ _ (fst f)) (cong′ Unfold (cong (λ alg → isPi-alg.guardX (alg n) x y P) (fix-eq ProcPi-algF)))
+            ∙ congS (mapProcF (next mapProc') _ _ (fst f)) (congS Unfold (cong (λ alg → isPi-alg.guardX (alg n) x y P) (fix-eq ProcPi-algF)))
             ∙ guard-map' f x y P
-            ∙ cong′ (stepguard _ _) (sym (mapProc'-eq' _ _ _ _))
-            ∙ sym (cong′ Unfold (cong (λ alg → isPi-alg.guardX (alg m) (fst f x) (fst f y) (mapProc _ _ (fst f) P)) (fix-eq ProcPi-algF))))
+            ∙ congS (stepguard _ _) (sym (mapProc'-eq' _ _ _ _))
+            ∙ sym (congS Unfold (cong (λ alg → isPi-alg.guardX (alg m) (fst f x) (fst f y) (mapProc _ _ (fst f) P)) (fix-eq ProcPi-algF))))
 
 -- mapProc and νProc (which requires some extra lemmata).
 no-stepν-inp : ∀ {n} v P → stepν (`inp (fresh n) v P) ≡ ø
@@ -78,7 +78,7 @@ no-stepν-inp v P | nope x = refl
 stepν-inp : ∀ {n} ch v P → stepν {n} (`inp (ι ch) (ι v) P) ≡ η (`inp ch v λ α → νProc (P α) )
 stepν-inp ch v P with canNu? (inp (ι ch) (ι v))
 stepν-inp ch v P | inp {ch = ch'}{v'} x x₁ =
-  cong′ η (StepPath refl (sym λ i → inp (ι-inj ch ch' x i) (ι-inj v v' x₁ i)) refl)
+  congS η (StepPath refl (sym λ i → inp (ι-inj ch ch' x i) (ι-inj v v' x₁ i)) refl)
 stepν-inp ch v P | nope (inp (_⊎_.inl x)) = ⊥-rec (fresh-ι (x))
 stepν-inp ch v P | nope (inp (_⊎_.inr x)) = ⊥-rec (fresh-ι (x))
 
@@ -86,7 +86,7 @@ stepν-out : ∀ {n} ch v P → stepν {n} (`out (ι ch) (ι v) P) ≡ η (`out 
 stepν-out ch v P with canNu? (out (ι ch) (ι v))
 stepν-out ch v P | out2 x x₁ = ⊥-rec (fresh-ι (x₁))
 stepν-out ch v P | out {ch = ch'}{v'} x x₁ =
-  cong′ η (StepPath refl (sym (λ i → out (ι-inj _ ch' x i) (ι-inj _ v' x₁ i))) refl)
+  congS η (StepPath refl (sym (λ i → out (ι-inj _ ch' x i) (ι-inj _ v' x₁ i))) refl)
 stepν-out ch v P | nope (out x) = ⊥-rec (fresh-ι (x))
 
 stepν-bout : ∀ {n} {P : ▹ Proc _} {ch : Name n}
@@ -116,10 +116,10 @@ abstract
   no-stepνF-inps' : ∀ {n m} (f : Name n → Name m) P
     → stepνF (inps' (\ _ → mapProc') (lift f) (fresh n) P) ≡ ø
   no-stepνF-inps' f P =
-    cong′ stepνF (inps'-eq (\ _ → mapProc') _ _ _)
+    congS stepνF (inps'-eq (\ _ → mapProc') _ _ _)
     ∙ bind-bind (neg (image (lift f)) (image-fn _)) _ _
     ∙ cong (bind (neg (image (lift f)) (image-fn _)))
-        (funExt λ v → cong′ stepν (StepPath refl (cong′ (λ x → inp x v) (lift-fresh f)) refl) ∙ no-stepν-inp v _)
+        (funExt λ v → congS stepν (StepPath refl (congS (λ x → inp x v) (lift-fresh f)) refl) ∙ no-stepν-inp v _)
     ∙ bind-ø (neg (image (lift f)) (image-fn _))
 
   stepνF-inps' : ∀ {n m} ch (f : Inj n m) P →
@@ -128,14 +128,14 @@ abstract
     stepνF (inps' (\ _ → mapProc') (lift (fst f)) (ι ch) P) ≡
       inps' (λ _ → mapProc') (fst f) ch (λ α → νProc (mapProc _ _ swap (P α)))
   stepνF-inps' ch f P ih =
-    cong′ stepνF (inps'-eq (\ _ → mapProc') _ _ _)
+    congS stepνF (inps'-eq (\ _ → mapProc') _ _ _)
     ∙ bind-bind (neg (image (lift (fst f))) (image-fn _)) _ _
     ∙ cong₂ bind (neg-image-lift (fst f)) refl
     ∙ bind-map (neg (image (fst f)) (image-fn _)) _ _
     ∙ cong-bind (neg (image (fst f)) (image-fn _)) (λ z m →
-        cong′ stepν (StepPath refl (cong′ (λ x → inp x (ι z)) (lift-ι (fst f) ch)) refl)
+        congS stepν (StepPath refl (congS (λ x → inp x (ι z)) (lift-ι (fst f) ch)) refl)
         ∙ stepν-inp (fst f ch) z _
-        ∙ cong η (cong′ (`inp (fst f ch) z) (later-ext (λ α → cong νProc (cong′ (λ y → mapProc _ _ y (P α)) (funExt (snoc-lift-ι (fst f) z))
+        ∙ cong η (congS (`inp (fst f ch) z) (later-ext (λ α → cong νProc (congS (λ y → mapProc _ _ y (P α)) (funExt (snoc-lift-ι (fst f) z))
                                                                          ∙ sym (mapmapProc _ _ _ (_ , lift-inj (_ , snoc-inj f z m)) (_ , swap-inj) _))
                                                                 ∙ sym (ih α _ _ (_ , snoc-inj f z m) (mapProc _ _ swap (P α)))))))
     ∙ sym (inps'-eq (\ _ → mapProc') _ _ _)
@@ -179,7 +179,7 @@ abstract
 ... | yes q | q' = ⊥-rec (fresh-ι (sym p))
 ... | no q | yes q' =
   cong η (StepPath refl
-                   (cong′ bout (ι-inj _ _ (cong ι (cong (fst f) (sym lem)) ∙ p)))
+                   (congS bout (ι-inj _ _ (cong ι (cong (fst f) (sym lem)) ∙ p)))
                    (later-ext (λ _ → refl)))
   where                   
     lem : down _ q ≡ ch'
@@ -204,10 +204,10 @@ abstract
 ... | yes q = ⊥-rec (fresh-ι (sym p))
 ... | no q =
   cong η (StepPath refl
-                   (cong′ bout (ι-inj _ _ (cong ι (cong (fst f) (sym lem)) ∙ p)))
+                   (congS bout (ι-inj _ _ (cong ι (cong (fst f) (sym lem)) ∙ p)))
     (later-ext (λ α → ih α _ _ (lift (fst f) , lift-inj f) (mapProc (suc (suc n)) (suc (suc n)) swap (P α))
-                      ∙ cong′ νProc (mapmapProc _ _ _ (_ , lift-inj (_ , lift-inj f)) (_ , swap-inj) (P α)
-                                  ∙ cong′ (λ g → mapProc _ _ g (P α)) (funExt (swap-lift (fst f)))
+                      ∙ congS νProc (mapmapProc _ _ _ (_ , lift-inj (_ , lift-inj f)) (_ , swap-inj) (P α)
+                                  ∙ congS (λ g → mapProc _ _ g (P α)) (funExt (swap-lift (fst f)))
                                   ∙ sym (mapmapProc _ _ _ (_ , swap-inj) (_ , lift-inj (_ , lift-inj f)) (P α))))))
   where                   
     lem : down _ q ≡ ch'
@@ -256,10 +256,10 @@ abstract
 ... | yes q = ⊥-rec (fresh-ι (sym p))
 ... | no q =
   cong₂ _∪_ (cong η (StepPath refl
-                              (cong′ binp (ι-inj _ _ (cong ι (cong (fst f) (sym lem)) ∙ p)))
+                              (congS binp (ι-inj _ _ (cong ι (cong (fst f) (sym lem)) ∙ p)))
               (later-ext (λ α →  ih α _ _ (lift (fst f) , lift-inj f) (mapProc (suc (suc n)) (suc (suc n)) swap (P α))
-                                 ∙ cong′ νProc (mapmapProc _ _ _ (_ , lift-inj (_ , lift-inj f)) (_ , swap-inj) (P α)
-                                            ∙ cong′ (λ g → mapProc _ _ g (P α)) (funExt (swap-lift (fst f)))
+                                 ∙ congS νProc (mapmapProc _ _ _ (_ , lift-inj (_ , lift-inj f)) (_ , swap-inj) (P α)
+                                            ∙ congS (λ g → mapProc _ _ g (P α)) (funExt (swap-lift (fst f)))
                                             ∙ sym (mapmapProc _ _ _ (_ , swap-inj) (_ , lift-inj (_ , lift-inj f)) (P α)))))))
             (sym ((λ i → stepνF (inps' (λ _ → mapProc') (lift (fst f)) (r i) P)) ∙ stepνF-inps' _ f P ih))
   where                   
@@ -282,7 +282,7 @@ abstract
 
 ν-map : ∀ n m (f : Inj n m) p
   → mapProc _ _ (fst f) (νProc p) ≡ νProc (mapProc _ _ (lift (fst f)) p)
-ν-map = fix (\ ih n m f p → cong Fold (mapProc'-eq' _ _ (fst f) (Unfold (νProc p))) ∙ cong′ (\ p → Fold (mapProcF (next mapProc') _ _ (fst f) (Unfold p)))
+ν-map = fix (\ ih n m f p → cong Fold (mapProc'-eq' _ _ (fst f) (Unfold (νProc p))) ∙ congS (\ p → Fold (mapProcF (next mapProc') _ _ (fst f) (Unfold p)))
       (cong (λ alg₁ → isPi-alg.νX (alg₁ n) p) (fix-eq ProcPi-algF)) ∙ cong Fold (bind-bind (Unfold p) _ _ )
       ∙ cong Fold (cong₂ bind (\ _ → Unfold p) (funExt \ v → ν-mapF n m f v ih))
       ∙ sym (cong Fold (bind-bind (Unfold p) _ _))
@@ -332,7 +332,7 @@ stepL-map : (ih : ▹
        parProc (mapProc n₁ m₁ (fst f₁) p₁) (mapProc n₁ m₁ (fst f₁) q₁)))
       → ∀ n m (f : Inj n m) p q → mapProc' n m (fst f) (stepL (Unfold p) q) ≡ stepL (Unfold (mapProc _ _ (fst f) p)) (mapProc _ _ (fst f) q)
 stepL-map ih n m f p q = mapProc'-eq' _ _ _ (stepL (Unfold p) q) ∙ (bind-map (Unfold p) _ _
-                       ∙ cong′ (bind (Unfold p))
+                       ∙ congS (bind (Unfold p))
                           (funExt \ v → inps-eq (fst f) (mapStep (λ m₁ i x α → parProc (x α) (mapProc n m₁ (fst i) q)) v) _
                           ∙ cong₂ _∪_ (cong η (StepPath refl refl (later-ext \ α → ih α _ _ (labelRen (theLabel v) m (fst f) , labelRen-inj _ _ f) _ _ ∙
                                                                   cong₂ parProc refl (mapmapProc _ _ _ (_ , labelRen-inj (theLabel v) m f) (labelInj (theLabel v)) q
@@ -347,7 +347,7 @@ stepL-map ih n m f p q = mapProc'-eq' _ _ _ (stepL (Unfold p) q) ∙ (bind-map (
     inps-lemma (b , Q') with binp? b
     inps-lemma (.(binp _) , Q') | binp {ch} = inps'-eq (\ _ → mapProc') (fst f) _ _
                                          ∙  cong-bind (neg (image (fst f)) (image-fn _)) (\ v mv →
-                                             cong′ η ( cong′ (`inp (fst f ch) v) (later-ext \ α →  ih α _ _ (snoc (fst f) v , snoc-inj f v mv) _ _ ∙ cong₂ parProc refl
+                                             congS η ( congS (`inp (fst f ch) v) (later-ext \ α →  ih α _ _ (snoc (fst f) v , snoc-inj f v mv) _ _ ∙ cong₂ parProc refl
                                                  (mapmapProc _ _ _ (_ , snoc-inj f v mv) (_ , ι-inj) q ∙ cong₂ (mapProc _ _) (funExt \ v → snoc-ι _ _ v) refl ∙
                                                    sym (mapmapProc _ _ _ (_ , \ _ _ p → p) f q))  ) )  )
                                          ∙ sym (map-bind (neg (image (fst f)) (image-fn _)) _ _)
@@ -360,7 +360,7 @@ stepR-map : (ih : ▹
        parProc (mapProc n₁ m₁ (fst f₁) p₁) (mapProc n₁ m₁ (fst f₁) q₁)))
       → ∀ n m (f : Inj n m) p q → mapProc' n m (fst f) (stepR p (Unfold q)) ≡ stepR (mapProc _ _ (fst f) p) (Unfold (mapProc _ _ (fst f) q))
 stepR-map ih n m f p q = mapProc'-eq' _ _ _ (stepR p (Unfold q)) ∙ (bind-map (Unfold q) _ _
-                       ∙ cong′ (bind (Unfold q))
+                       ∙ congS (bind (Unfold q))
                           ( (funExt \ v → inps-eq (fst f) (mapStep (λ m₁ i x α → parProc (mapProc n m₁ (fst i) p) (x α)) v) _
                           ∙ cong₂ _∪_ (cong η (StepPath refl refl (later-ext \ α → ih α _ _ (labelRen (theLabel v) m (fst f) , labelRen-inj _ _ f) _ _ ∙
                                                                   cong₂ parProc (mapmapProc _ _ _ (_ , labelRen-inj _ _ f) (labelInj (theLabel v)) p
@@ -375,7 +375,7 @@ stepR-map ih n m f p q = mapProc'-eq' _ _ _ (stepR p (Unfold q)) ∙ (bind-map (
     inps-lemma (b , Q') with binp? b
     inps-lemma (.(binp _) , Q') | binp {ch} =  inps'-eq (\ _ → mapProc') (fst f) _ _
                                          ∙  cong-bind (neg (image (fst f)) (image-fn _)) (\ v mv →
-                                             cong′ η ( cong′ (`inp (fst f ch) v) (later-ext \ α →  ih α _ _ (snoc (fst f) v , snoc-inj f v mv) _ _
+                                             congS η ( congS (`inp (fst f ch) v) (later-ext \ α →  ih α _ _ (snoc (fst f) v , snoc-inj f v mv) _ _
                                               ∙ cong₂ parProc
                                                  (mapmapProc _ _ _ (_ , snoc-inj f v mv) (_ , ι-inj) p
                                                    ∙ cong₂ (mapProc _ _) (funExt \ v → snoc-ι _ _ v) refl ∙ sym (mapmapProc _ _ _ (_ , \ _ _ p → p) f p)) refl  ) )  )
@@ -392,7 +392,7 @@ synch'-map n m f (`out x x₁ P) (`out x₂ x₃ Q) parX ih = refl
 synch'-map n m f (`out x x₁ P) (`bout x₂ Q) parX ih = refl
 synch'-map n m f (`out ch z P) (`inp ch' z' Q) parX ih with decName ch ch' | decName z z'
 synch'-map n m f (`out ch z P) (`inp ch' z' Q) parX ih | yes p | yes p₁ = sym (synch'-out-inp _ _ _ _ (cong (fst f) p) (cong (fst f) p₁)
-  ∙ cong′ η (cong′ `τ (later-ext \ α → sym (ih α _ _ f _ _))))
+  ∙ congS η (congS `τ (later-ext \ α → sym (ih α _ _ f _ _))))
 synch'-map n m f (`out ch z P) (`inp ch' z' Q) parX ih | yes p | no ¬p = sym (no-synch'-out-inp _ _ _ _ \ _ ze → ¬p (f .snd _ _ ze))
 synch'-map n m f (`out ch z P) (`inp ch' z' Q) parX ih | no ¬p | q
   = sym (no-synch'-out-inp _ _ _ _ (\ che ze → ¬p (f .snd _ _ che)))
@@ -406,7 +406,7 @@ synch'-map n m f (`bout x P) (`bout x₁ Q) parX ih = refl
 synch'-map n m f (`bout x P) (`inp x₁ x₂ Q) parX ih = refl
 synch'-map n m f (`bout ch P) (`binp ch' Q) parX ih with decName ch ch'
 synch'-map n m f (`bout ch P) (`binp ch' Q) parX ih | yes p = 
-  (cong′ η (cong′ `τ (later-ext \ α → ν-map _ _ f _ ∙ cong νProc (ih α _ _ (_ , lift-inj f) _ _)))
+  (congS η (congS `τ (later-ext \ α → ν-map _ _ f _ ∙ cong νProc (ih α _ _ (_ , lift-inj f) _ _)))
   ∙ sym (unit _)) ∙ cong₂ _∪_ (sym (synch'-bout-binp _ _ _ _ (cong (fst f) p))) ((sym (cong₂ bind (inps'-eq _ _ _ Q) refl
           ∙ bind-bind (neg (image (fst f)) (image-fn _)) _ _
           ∙ bind-ø (neg (image (fst f)) (image-fn _)))))
@@ -438,7 +438,7 @@ synch'-map n m f (`binp x P) (`inp x₁ x₂ Q) parX ih = sym (idem _)
 synch'-map n m f (`binp x P) (`binp x₁ Q) parX ih = sym (cong₂ _∪_ (idem _) refl ∙ idem _) ∙ cong₂ _∪_ (cong₂ _∪_ refl ((sym (cong₂ bind (inps'-eq _ _ _ Q) refl
           ∙ bind-bind (neg (image (fst f)) (image-fn _)) _ _
           ∙ bind-ø (neg (image (fst f)) (image-fn _)))))) (sym (cong₂ bind (inps'-eq _ _ _ P) refl ∙ bind-bind (neg (image (fst f)) (image-fn _)) _ _
-                                              ∙ cong′ (bind (neg (image (fst f)) (image-fn _))) (funExt \ z →  cong₂ _∪_ refl (cong₂ bind (inps'-eq _ _ _ Q) refl
+                                              ∙ congS (bind (neg (image (fst f)) (image-fn _))) (funExt \ z →  cong₂ _∪_ refl (cong₂ bind (inps'-eq _ _ _ Q) refl
           ∙ bind-bind (neg (image (fst f)) (image-fn _)) _ _
           ∙ bind-ø (neg (image (fst f)) (image-fn _))) ∙ idem _) ∙ bind-ø (neg (image (fst f)) (image-fn _))))
 synch'-map n m f (`binp x P) (`τ Q) parX ih = sym (idem _)
@@ -457,7 +457,7 @@ synch'-map n m f (`τ P) (`τ Q) parX  ih = refl
 
 synchF-eq : ∀ {n} (p q : F' n (\ _ → Proc))
   → synchF p q ≡ synchF' (λ _ → parProc) (λ _ → νProc) p q ∪ synchF' (next (λ x y → parProc y x)) (λ _ → νProc) q p
-synchF-eq p q = cong′ (bind p) (funExt (λ _ → bind-∪ _ _ q)) ∙ bind-∪ _ _ p ∙ cong₂ _∪_ refl (bind-comm _ p q)
+synchF-eq p q = congS (bind p) (funExt (λ _ → bind-∪ _ _ q)) ∙ bind-∪ _ _ p ∙ cong₂ _∪_ refl (bind-comm _ p q)
 
 synch-map :
    (ih : ▹ (∀ n m (f : Inj n m) p q → mapProc n m (fst f) (parProc p q) ≡ parProc (mapProc _ _ (fst f) p) (mapProc _ _ (fst f) q))) →
@@ -474,11 +474,11 @@ synchF-map :
 synchF-map ih n m f v v' =
   mapProc'-eq' _ _ _ _
     ∙ bind-bind v _ _
-    ∙ cong′ (bind v) (funExt (λ x →
+    ∙ congS (bind v) (funExt (λ x →
         bind-bind v' _ _
-        ∙ cong′ (bind v') (funExt (λ y → synch-map ih n m f x y))
+        ∙ congS (bind v') (funExt (λ y → synch-map ih n m f x y))
         ∙ bind-comm _ v' (inps (next mapProc') (fst f) x  _)
-        ∙ cong′ (bind (inps (next mapProc') (fst f) x  _)) (funExt (λ y → sym (bind-bind v' _ _)))))
+        ∙ congS (bind (inps (next mapProc') (fst f) x  _)) (funExt (λ y → sym (bind-bind v' _ _)))))
     ∙ sym (bind-bind v _ _)
     ∙ sym (cong₂ synchF (mapProc'-eq' _ _ _ _) (mapProc'-eq' _ _ _ _))
 
@@ -486,12 +486,12 @@ par-map : ∀ n m (f : Inj n m) P Q →
   mapProc n m (fst f) (parProc P Q) ≡ parProc (mapProc _ _ (fst f) P) (mapProc _ _ (fst f) Q)
 par-map = fix \ ih n m f P Q →
   cong Fold (mapProc'-eq' _ _ _ _
-            ∙ cong′ (mapProcF (next mapProc') _ _ (fst f)) (cong′ Unfold (cong (λ alg → isPi-alg.parX (alg n) P Q) (fix-eq ProcPi-algF)))
+            ∙ congS (mapProcF (next mapProc') _ _ (fst f)) (congS Unfold (cong (λ alg → isPi-alg.parX (alg n) P Q) (fix-eq ProcPi-algF)))
             ∙ cong₂ _∪_ (cong₂ _∪_
                 (sym (mapProc'-eq' _ _ _ _) ∙ stepL-map ih _ _ f P Q) 
                 (sym (mapProc'-eq' _ _ _ _) ∙ stepR-map ih _ _ f P Q))
                 (sym (mapProc'-eq' _ _ _ _) ∙ synchF-map ih _ _ f (Unfold P) (Unfold Q))
-            ∙ sym (cong′ Unfold (cong (λ alg → isPi-alg.parX (alg _) (mapProc _ _ (fst f) P) (mapProc _ _ (fst f) Q)) (fix-eq ProcPi-algF))))
+            ∙ sym (congS Unfold (cong (λ alg → isPi-alg.parX (alg _) (mapProc _ _ (fst f) P) (mapProc _ _ (fst f) Q)) (fix-eq ProcPi-algF))))
 
 -- mapProc and !Proc.
 
@@ -503,11 +503,11 @@ stepL-map' = stepL-map (next par-map) _ _
 rep-map : ∀ {n m} (f : Inj n m) (P : Proc n) →
   mapProc n m (fst f) (!Proc P) ≡ !Proc (mapProc _ _ (fst f) P) 
 rep-map = fix λ ih f P →
-  cong′ (mapProc _ _ (fst f)) (!Proc-eq {P = P})
+  congS (mapProc _ _ (fst f)) (!Proc-eq {P = P})
   ∙ cong Fold
       (∪-map (fst f) _ _
       ∙ cong₂ _∪_ (stepL-map (next par-map) _ _ f P (!Proc P)
-                  ∙ cong′ (stepL' (Unfold (mapProc _ _ (fst f) P))) (later-ext (λ α → ih α f P)))
+                  ∙ congS (stepL' (Unfold (mapProc _ _ (fst f) P))) (later-ext (λ α → ih α f P)))
                   (stepL-map (next par-map) _ _ f (Fold (synchF (Unfold P) (Unfold P))) (!Proc P)
                   ∙ cong₂ stepL' (synchF-map (next par-map) _ _ f (Unfold P) (Unfold P)) (later-ext (λ α → ih α f P))))
   ∙ sym (!Proc-eq {P = mapProc _ _ (fst f) P})
@@ -517,8 +517,8 @@ rep-map = fix λ ih f P →
 --   mapProc _ _ f (actProc a P) ≡ actProc (mapAct f a) (mapProc _ _ f P)
 -- act-map {n}{m} f a P = 
 --   cong Fold (mapProc'-eq' _ _ _ _
---             ∙ cong′ (mapProcF (next mapProc') _ _ f) (cong′ Unfold (cong (λ alg → isCCS-alg.actX (alg n) a P) (fix-eq ProcCCS-algF)))
---             ∙ sym (cong′ Unfold (cong (λ alg → isCCS-alg.actX (alg m) (mapAct f a) (mapProc _ _ f P)) (fix-eq ProcCCS-algF))))
+--             ∙ congS (mapProcF (next mapProc') _ _ f) (congS Unfold (cong (λ alg → isCCS-alg.actX (alg n) a P) (fix-eq ProcCCS-algF)))
+--             ∙ sym (congS Unfold (cong (λ alg → isCCS-alg.actX (alg m) (mapAct f a) (mapProc _ _ f P)) (fix-eq ProcCCS-algF))))
 
 -- -- The main result of this file: evaluation into Proc respects actions
 -- -- on injective renamings.
@@ -536,10 +536,10 @@ rep-map = fix λ ih f P →
 --   cong₂ parProc (mapProc-evalX f p) (mapProc-evalX f q)
 --   ∙ sym (par-map _ _ f _ _)
 -- mapProc-evalX f (ν p) =
---   cong′ νProc (mapProc-evalX (lift (fst f) , lift-inj f) p)
+--   congS νProc (mapProc-evalX (lift (fst f) , lift-inj f) p)
 --   ∙ sym (ν-map _ _ (fst f) _)
 -- mapProc-evalX f (! p) =
---   cong′ !Proc (mapProc-evalX f p)
+--   congS !Proc (mapProc-evalX f p)
 --   ∙ sym (rep-map f _)
 
 -- mapProc-evalX : ∀ {n m} (f : Name m → Name n) (p : Pi m) →
@@ -556,8 +556,8 @@ rep-map = fix λ ih f P →
 --   cong₂ parProc (mapProc-evalX f p) (mapProc-evalX f q)
 --   ∙ sym (par-map _ _ {!!} _ _)
 -- mapProc-evalX f (ν p) =
---   cong′ νProc (mapProc-evalX (lift f) p)
+--   congS νProc (mapProc-evalX (lift f) p)
 --   ∙ sym (ν-map _ _ {!!} _)
 -- mapProc-evalX f (! p) =
---   cong′ !Proc (mapProc-evalX f p)
+--   congS !Proc (mapProc-evalX f p)
 --   ∙ sym (rep-map {!!} _)

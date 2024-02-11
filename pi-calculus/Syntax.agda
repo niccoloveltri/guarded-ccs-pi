@@ -57,9 +57,9 @@ mapPi f (! P) = ! (mapPi f P)
 
 mapPi-id : ∀ {n} (P : Pi n) → mapPi (λ x → x) P ≡ P
 mapPi-id end = refl
-mapPi-id (out ch x · P) = cong′ (out ch x ·_) (mapPi-id P)
-mapPi-id (inp ch · P) = cong′ (inp ch ·_) ((λ i → mapPi (λ v → lift-id v i) P) ∙ mapPi-id P)
-mapPi-id (τ · P) = cong′ (τ ·_) (mapPi-id P)
+mapPi-id (out ch x · P) = congS (out ch x ·_) (mapPi-id P)
+mapPi-id (inp ch · P) = congS (inp ch ·_) ((λ i → mapPi (λ v → lift-id v i) P) ∙ mapPi-id P)
+mapPi-id (τ · P) = congS (τ ·_) (mapPi-id P)
 mapPi-id (P ⊕ P₁) = cong₂ _⊕_ (mapPi-id P) (mapPi-id P₁)
 mapPi-id (P ∣∣ P₁) = cong₂ _∣∣_ (mapPi-id P) (mapPi-id P₁)
 mapPi-id (ν P) = cong ν ((λ i → mapPi (λ v → lift-id v i) P) ∙ mapPi-id P)

@@ -81,7 +81,7 @@ module Bisim-≡ where
                                                                                   (a , _) (step q) m'' in
                                                          transport (cong (λ x → ⟨ x ∈ mapF ((\ m _ x α → eval m x)) (step y) ⟩)
                                                                      ((λ i → (a , λ α → eq' α (~ i))) ∙ sym eq))
-                                                                     (transport (cong ⟨_⟩ (cong₂ _∈_ (cong′ (a ,_) (later-ext (λ α → sym (eval-≈ q'c) ∙ cong′ (eval _) (λ i → r (~ i) α))))
+                                                                     (transport (cong ⟨_⟩ (cong₂ _∈_ (congS (a ,_) (later-ext (λ α → sym (eval-≈ q'c) ∙ congS (eval _) (λ i → r (~ i) α))))
                                                                      (cong Unfold (sym (fix-eq eval-fun <* _ <* q) ∙ sym (eval-≈ qc) ∙ (fix-eq eval-fun <* _ <* y)))))  ∈stepy )
                                                 }) m''
 

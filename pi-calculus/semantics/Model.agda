@@ -102,7 +102,7 @@ parPiMod p q .elem-nat f ρ = par-map _ _ f _ _ ∙ cong₂ parProc (p .elem-nat
 
 guardPiMod : ∀ {n} (x y : Name n) → PiMod n → PiMod n
 guardPiMod a b p .elem m g = guardProc (g a) (g b) (p .elem m g)
-guardPiMod a b p .elem-nat f ρ = guard-map f (ρ a) (ρ b) (p. elem _ ρ) ∙ cong′ (guardProc _ _) (p .elem-nat f ρ)
+guardPiMod a b p .elem-nat f ρ = guard-map f (ρ a) (ρ b) (p. elem _ ρ) ∙ congS (guardProc _ _) (p .elem-nat f ρ)
 
 PiMod-alg : ∀ n → isPi-alg PiMod n
 PiMod-alg n = record
@@ -232,7 +232,7 @@ mapPiMod-eval f end m' g = refl
 mapPiMod-eval f (out ch x · p) m' g =
   cong Fold (cong η (StepPath refl refl (later-ext \ α → mapPiMod-eval f p m' g)))
 mapPiMod-eval f (inp ch · p) m' g =
-  cong Fold (cong₂ _∪_ (cong′ (bind enum) (funExt \ v → cong η (StepPath refl refl (later-ext
+  cong Fold (cong₂ _∪_ (congS (bind enum) (funExt \ v → cong η (StepPath refl refl (later-ext
     \ α → mapPiMod-eval (lift f) p _ _ ∙ cong (evalX PiMod-alg p .elem _) ((funExt \ v' → cong (snoc g v) (lift-snoc _ _)
                                                                           ∙ f-snoc (snoc _ _) _ ∙ cong (\ f → f v') (cong₂ snoc (funExt \ v' → snoc-ι _ _ _)
                                                                            (snoc-fresh _ _))))))))

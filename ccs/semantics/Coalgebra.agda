@@ -366,7 +366,7 @@ module _ (ih : ▹ ∀ {n} (P : CCS n) → Eval.eval _ P ≡  evalG P) where
      mapP∞ (λ x → x .theLabel , λ α → eval n (x .theX α)) (SL.stepL' (step P) Q) 
      ≡
      SL'.stepL' (Unfold (eval n P)) (\ α → eval n (Q α))
-  stepL'-step {n} P Q = stepL'-step-g (step P) Q ∙ (cong′ SL'.stepL' (sym (cong Unfold (fix-eq eval-fun <* n <* P))) <* (λ α → eval n (Q α)))
+  stepL'-step {n} P Q = stepL'-step-g (step P) Q ∙ (congS SL'.stepL' (sym (cong Unfold (fix-eq eval-fun <* n <* P))) <* (λ α → eval n (Q α)))
 
   nu-par : ∀ {n} P Q → eval-fun (next (fix eval-fun)) n (P ∣∣ Q) ≡ Fold (SL'.par (eval n P) (Unfold (eval n P))
                                                                                                                               (eval n Q) (Unfold (eval n Q)))
@@ -381,7 +381,7 @@ module _ (ih : ▹ ∀ {n} (P : CCS n) → Eval.eval _ P ≡  evalG P) where
   evalG-eq' end = refl
   evalG-eq' {n} (a · P) =
     ((fix-eq eval-fun <* n) <* (a · P)) 
-     ∙ sym (cong isCCS-alg.actX (fix-eq ProcCCS-algF <* _) <* _ <* _) ∙ cong′ (isCCS-alg.actX (ProcCCS-alg _) a) (evalG-eq' P) 
+     ∙ sym (cong isCCS-alg.actX (fix-eq ProcCCS-algF <* _) <* _ <* _) ∙ congS (isCCS-alg.actX (ProcCCS-alg _) a) (evalG-eq' P) 
   evalG-eq' {n} (P ⊕ P₁) = 
     ((fix-eq eval-fun <* n) <* (P ⊕ P₁)) ∙ cong Fold (cong₂ _∪_
                  (sym ((cong Proc.Unfold (fix-eq eval-fun <* n <* P)) ∙ refl))
@@ -396,9 +396,9 @@ module _ (ih : ▹ ∀ {n} (P : CCS n) → Eval.eval _ P ≡  evalG P) where
     (fix-eq eval-fun <* n <* ν P)
     ∙ nu-stepF P
     ∙ sym (cong isCCS-alg.νX (fix-eq ProcCCS-algF <* _) <* (eval (suc n) P))
-    ∙ cong′ (isCCS-alg.νX (ProcCCS-alg _)) (evalG-eq' P)
+    ∙ congS (isCCS-alg.νX (ProcCCS-alg _)) (evalG-eq' P)
   evalG-eq' {n} (! P) = 
-    ((fix-eq eval-fun <* n <* (! P)) ∙ cong Fold (cong₂ _∪_ (stepL'-step P _ ∙ cong′ (SL'.stepL' (Unfold (eval _ P)))
+    ((fix-eq eval-fun <* n <* (! P)) ∙ cong Fold (cong₂ _∪_ (stepL'-step P _ ∙ congS (SL'.stepL' (Unfold (eval _ P)))
              (later-ext \ α → ih α (! P) ∙ cong !Proc (sym (ih α P)) ∙ (cong isCCS-alg.!X (fix-eq ProcCCS-algF <* _) <* eval n P)))
              (stepL'-step-g (SL.synchF (step P) (step P)) _ 
                ∙ cong₂ SL'.stepL' (synchF-step P P)

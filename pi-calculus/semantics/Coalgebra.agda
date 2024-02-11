@@ -140,14 +140,14 @@ module _ where
   bout∈stepν : ∀ {n} (ch : Name n) {P}
     → ⟨ `bout ch ((ν (mapPi swap P))) ∈ stepν (`bout (ι ch) (P)) ⟩
   bout∈stepν ch with canNu? (bout (ι ch))
-  bout∈stepν ch | bout p = ∣ StepPath refl (cong′ bout (ι-inj _ _ p)) refl ∣₁
+  bout∈stepν ch | bout p = ∣ StepPath refl (congS bout (ι-inj _ _ p)) refl ∣₁
   bout∈stepν ch | nope (bout x) = ⊥-rec (fresh-ι x)
 
   bout∈stepν2 : ∀ {n} (ch : Name n) {P}
     → ⟨ `bout ch (P) ∈ stepν (`out (ι ch) (fresh n) (P)) ⟩
   bout∈stepν2 ch  with canNu? (out (ι ch) (fresh _))
   bout∈stepν2 ch | out x x₁ = ⊥-rec (fresh-ι (sym x₁))
-  bout∈stepν2 ch | out2 p q = ∣ StepPath refl (cong′ bout (ι-inj _ _ p)) refl ∣₁
+  bout∈stepν2 ch | out2 p q = ∣ StepPath refl (congS bout (ι-inj _ _ p)) refl ∣₁
   bout∈stepν2 ch | nope (out x) = ⊥-rec (fresh-ι x)
 
   inp∈stepν : ∀ {n} (ch v : Name n) {P}
@@ -160,7 +160,7 @@ module _ where
   binp∈stepν : ∀ {n} (ch : Name n) {P}
     → ⟨ `binp ch ((ν (mapPi swap P))) ∈ stepν (`binp (ι ch) (P)) ⟩
   binp∈stepν ch with canNu? (binp (ι ch))
-  binp∈stepν ch | binp p = ∣ StepPath refl (cong′ binp (ι-inj _ _ p)) refl ∣₁
+  binp∈stepν ch | binp p = ∣ StepPath refl (congS binp (ι-inj _ _ p)) refl ∣₁
   binp∈stepν ch | nope (binp x) = ⊥-rec (fresh-ι x)
 
   out-ν-opsem : ∀ {n} (ch v : Name (suc n)) {aQ : Step Pi n} {P}
@@ -482,7 +482,7 @@ module _ (ih : ▹ ∀ {n} (P : Pi n) → Eval.eval _ P ≡  evalGM P .elem _ (�
   stepL'-step : ∀ {n} P Q
     → mapF' {n = n} (λ α m i x → eval m x) (SL.stepL' (step P) Q)
         ≡ SL'.stepL' (Unfold (eval n P)) (\ α → eval n (Q α))
-  stepL'-step P Q = stepL'-step-g (step P) Q ∙ (cong′ SL'.stepL' (sym (cong Unfold (fix-eq eval-fun <* _ <* P))) <* λ α → eval _ (Q α))
+  stepL'-step P Q = stepL'-step-g (step P) Q ∙ (congS SL'.stepL' (sym (cong Unfold (fix-eq eval-fun <* _ <* P))) <* λ α → eval _ (Q α))
 
   nu-par : ∀ {n} P Q 
     → eval-fun (next (fix eval-fun)) n (P ∣∣ Q)
@@ -521,7 +521,7 @@ module _ (ih : ▹ ∀ {n} (P : Pi n) → Eval.eval _ P ≡  evalGM P .elem _ (�
   evalGM-eq' {n} (! P) =
     (fix-eq eval-fun <* n <* (! P))
     ∙ cong Fold (cong₂ _∪_ (stepL'-step P _
-                            ∙ cong′ (SL'.stepL' (Unfold (eval _ P)))
+                            ∙ congS (SL'.stepL' (Unfold (eval _ P)))
                                     (later-ext \ α → ih α (! P)
                                                       ∙ cong !Proc (sym (ih α P))
                                                       ∙ (cong isPi-alg.!X (fix-eq ProcPi-algF <* _) <* eval n P)))
@@ -559,10 +559,10 @@ evalGM-eq P ρ =
 eval-≈ : ∀ {n} {P Q : Pi n} → P ≈ Q → Eval'.eval _ P ≡ Eval'.eval _ Q
 eval-≈ {n}{P}{Q} c =
   sym (Eval'.eval-eq' P)
-  ∙ cong′ (Eval.eval n) (sym (mapPi-id P))
+  ∙ congS (Eval.eval n) (sym (mapPi-id P))
   ∙ evalGM-eq P (λ x → x)
   ∙ (cong elem (evalX≈ PiMod-model c) <* _ <* (\ x → x))
   ∙ sym (evalGM-eq Q (λ x → x))
-  ∙ cong′ (Eval.eval n) (mapPi-id Q)
+  ∙ congS (Eval.eval n) (mapPi-id Q)
   ∙ Eval'.eval-eq' Q
 
