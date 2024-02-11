@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guarded #-}
+{-# OPTIONS --cubical --guarded -WnoUnsupportedIndexedMatch #-}
 open import Cubical.Data.Sum hiding (inl; inr) renaming (rec to rec⊎)
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
 open import Cubical.Data.Nat
