@@ -14,4 +14,4 @@ Cubical Agda.
 
 The file [Main.agda](https://github.com/niccoloveltri/guarded-ccs-pi/blob/main/Main.agda) imports the whole development.
 
-The code typechecks using Agda version 2.6.2. It requires the installation of the [cubical](https://github.com/agda/cubical) library.
+The code typechecks using Agda version 2.6.4. It requires the installation of the [cubical](https://github.com/agda/cubical) library.

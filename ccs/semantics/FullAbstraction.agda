@@ -78,10 +78,10 @@ module Bisim-≡ where
                                                   let ∈stepy = mapP∞-in {B = Step (\ n → ▹ (Proc n)) n} (λ x → x .theLabel , λ α → eval n (x .theX))
                                                                                   (a , _) (step q) m'' in
                                                          transport (cong (λ x → ⟨ x ∈ mapP∞ (λ x → (x .theLabel , λ α → eval n (x .theX))) (step y) ⟩)
-                                                                     (cong′ (a ,_) (later-ext \ α → sym (eq' α)) ∙ sym eq))
+                                                                     (congS (a ,_) (later-ext \ α → sym (eq' α)) ∙ sym eq))
                                                                      (subst (λ x → ⟨ (a , (λ α → eval n (x α))) ∈ mapP∞ (λ z → z .theLabel , (λ α → eval n (z .theX))) (step y) ⟩)
                                                                             (sym r')
-                                                                            (transport (cong ⟨_⟩ (cong₂ _∈_ (cong′ (a ,_) (later-ext \ α → sym (eval-≈ (q'c))))
+                                                                            (transport (cong ⟨_⟩ (cong₂ _∈_ (congS (a ,_) (later-ext \ α → sym (eval-≈ (q'c))))
                                                                               (λ i → Unfold ((sym (fix-eq eval-fun <* _ <* q) ∙ sym (eval-≈ qc) ∙ (fix-eq eval-fun <* _ <* y)) i))))  ∈stepy ))
                                                 }) m''
 
@@ -105,7 +105,7 @@ module Bisim-≡ where
         where
           a⟦p'⟧∈stepp = mapP∞-in {B = Step (\ n → ▹ Proc n) n} (λ x → x .theLabel , λ _ → eval n (x .theX)) (a , p') (step p)
                                                      ap'∈stepp
-          a⟦p'⟧∈stepq = transport (cong′
+          a⟦p'⟧∈stepq = transport (congS
                                                                 (λ x → ⟨ (a , \ _ → eval _ p') ∈ x ⟩)
                                                                 (sym (cong (λ x → Unfold (x n p)) (fix-eq (eval-fun)))
                                                                 ∙ (λ i → Unfold (e i))
@@ -125,9 +125,9 @@ module Bisim-≡ where
                       (e' : ▸ \ α → eval _ p' ≡ eval _ q') →
                       Σ (▹ CCS n) (λ q'' → (Σ _ \ Q' → (next Q' ≡ q'') × ⟨ (a , Q') ∈ step q ⟩) × (▸ (λ α → eval _ (p') ≡ eval _ (q'' α)))))
                    (\ q' aq'∈stepq e' → next q' , (_ , refl , aq'∈stepq) , e')
-                   (sym (cong′ theLabel e'))
+                   (sym (congS theLabel e'))
                    q' aq'∈stepq
-                   (λ α i → cong′ theX e' i α)
+                   (λ α i → congS theX e' i α)
                    
       lem : ▹ (∀ n (p q : CCS n) → eval n p ≡ eval n q → Bisim n p q) → ∀ n (p q : CCS n) → eval n p ≡ eval n q → SimF (\ α → Bisim) n p q
       lem ih n p q e .sim a p' = PT.rec squash₁ \ { (Q , Q' , Q'' , Qc , r , Q'c ,  ap'∈stepp) →
@@ -150,7 +150,7 @@ fullAbstract {n} P Q =
         (ifunExt \ _ → funExt (λ _ → funExt λ _ → funExt λ _ →
           cong fst (⇔toPath {P = _ , squash₁} {Q = _ , squash₁} (opsem→∈step2 _ _ _) (∈step→opsem2 _ _ _))))) ⟩
   BR.Bisim n P Q
-    ≡⟨ cong′ fst (⇔toPath {P = _ , BR.isPropBisim}{Q = _ , isSetProc _ _ _}
+    ≡⟨ congS fst (⇔toPath {P = _ , BR.isPropBisim}{Q = _ , isSetProc _ _ _}
              (λ b → (sym (evalG-eq P) ∙ Eval'.eval-eq' P) ∙ bisim-≡ n P Q b ∙ sym (Eval'.eval-eq' Q) ∙ evalG-eq Q)
              (λ eq → ≡-bisim n P Q (sym (Eval'.eval-eq' P) ∙ evalG-eq P ∙ eq ∙ sym (evalG-eq Q) ∙ Eval'.eval-eq' Q))) ⟩
   (evalX ProcCCS-alg P ≡ evalX ProcCCS-alg Q)

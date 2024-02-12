@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guarded #-}
+{-# OPTIONS --cubical --guarded -WnoUnsupportedIndexedMatch #-}
 
 open import Cubical.Data.Sum hiding (inl; inr) 
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
@@ -49,10 +49,10 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
 -- Unitality of parProc.
   unit-par : ∀ {n} {P : Proc n} → parProc P endProc ≡ P
   unit-par {n}{P} =
-    cong′ (λ x → isCCS-alg.parX (x n) P (isCCS-alg.endX (x n))) (fix-eq ProcCCS-algF)
+    congS (λ x → isCCS-alg.parX (x n) P (isCCS-alg.endX (x n))) (fix-eq ProcCCS-algF)
     ∙ cong Fold (cong₂ _∪_ (unit _) (bind-ø (Unfold P))
                 ∙ unit _
-                ∙ cong′ (λ x → mapP∞ x (Unfold P)) (funExt (λ {(a , P') → StepPath refl
+                ∙ congS (λ x → mapP∞ x (Unfold P)) (funExt (λ {(a , P') → StepPath refl
                   (later-ext (\ α → unit∣∣X (ih α))) }))
                 ∙ mapidP∞ _)
 
@@ -74,21 +74,21 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
 
   comm-par : ∀ {n} {p q : Proc n} → parProc p q ≡ parProc q p
   comm-par {n}{P}{Q} =
-    cong′ (λ x → isCCS-alg.parX (x n) P Q) (fix-eq ProcCCS-algF)
+    congS (λ x → isCCS-alg.parX (x n) P Q) (fix-eq ProcCCS-algF)
     ∙ cong Fold (cong₂ _∪_
                   (cong₂ _∪_
-                    (cong′ (λ f → mapP∞ f (Unfold P)) (funExt (λ _ → StepPath refl (later-ext (\ α → ih α .comm∣∣X {Q = Q}))))) 
-                    (cong′ (λ f → mapP∞ f (Unfold Q)) (funExt (λ _ → StepPath refl (later-ext (\ α → ih α .comm∣∣X {P = P})))))
+                    (congS (λ f → mapP∞ f (Unfold P)) (funExt (λ _ → StepPath refl (later-ext (\ α → ih α .comm∣∣X {Q = Q}))))) 
+                    (congS (λ f → mapP∞ f (Unfold Q)) (funExt (λ _ → StepPath refl (later-ext (\ α → ih α .comm∣∣X {P = P})))))
                   ∙ comm _ _)
                   (comm-synchF {_}{Unfold P}{Unfold Q}))
-    ∙ cong′ (λ x → isCCS-alg.parX (x n) Q P) (sym (fix-eq ProcCCS-algF))
+    ∙ congS (λ x → isCCS-alg.parX (x n) Q P) (sym (fix-eq ProcCCS-algF))
 
 -- Associativity of parProc.
   step-LR : ∀ {n} P Q R →
     stepL {n} (stepR P Q) R ≡ stepR P (stepL Q R)
   step-LR P Q R =
     mapmapP∞ _ _ Q
-    ∙ cong′ (λ f → mapP∞ f Q) (funExt (λ { (a , Q') →
+    ∙ congS (λ f → mapP∞ f Q) (funExt (λ { (a , Q') →
         StepPath refl (later-ext (λ α → ih α .assoc∣∣X {P = P})) })) ∙ sym (mapmapP∞ _ _ Q)
 
 -- Associativity of parProc (which requires many lemmata).
@@ -96,7 +96,7 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
     stepR {n} P (stepR Q R) ≡ stepR (parProc P Q) R
   step-RR P Q R =
     mapmapP∞ _ _ R
-    ∙ sym (cong′ (λ f → mapP∞ f R) (funExt (λ { (a , R') →
+    ∙ sym (congS (λ f → mapP∞ f R) (funExt (λ { (a , R') →
         StepPath refl (later-ext (λ α → ih α .assoc∣∣X {P = P}))})))
 
   stepL-synch'-L : ∀ {n} (aP aQ : Step (\ n → ▹ Proc n) n) R →
@@ -175,12 +175,12 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
         cong (bind R) (funExt (λ aR' →
           cong₂ _∪_
             (synch'-assoc aP' Q aR')
-            (cong′ (λ (f : ▹ (∀ n → Proc n → Proc n → Proc n)) → synch' (λ α {n} → f α n) aR' (theLabel aP' , λ α → parProc (theX aP' α) Q)) 
+            (congS (λ (f : ▹ (∀ n → Proc n → Proc n → Proc n)) → synch' (λ α {n} → f α n) aR' (theLabel aP' , λ α → parProc (theX aP' α) Q)) 
               (later-ext (λ α → funExt (λ _ → funExt (λ p → (funExt (λ q → ih α .comm∣∣X {P = q}))))))
-             ∙ cong′ (synch' (λ _ → parProc) aR') (StepPath refl (later-ext (λ α → ih α .comm∣∣X {P = theX aP' α})))
+             ∙ congS (synch' (λ _ → parProc) aR') (StepPath refl (later-ext (λ α → ih α .comm∣∣X {P = theX aP' α})))
              ∙ sym (synch'-assoc aR' Q aP')
-             ∙ cong′ (λ x → synch' (λ _ → parProc) x aP') (StepPath refl (later-ext (λ α → ih α .comm∣∣X {P = theX aR' α})))
-             ∙ cong′ (λ (f : ▹ (∀ n → Proc n → Proc n → Proc n)) → synch' (λ α {n} → f α n) (theLabel aR' , λ α → parProc Q (theX aR' α)) aP')
+             ∙ congS (λ x → synch' (λ _ → parProc) x aP') (StepPath refl (later-ext (λ α → ih α .comm∣∣X {P = theX aR' α})))
+             ∙ congS (λ (f : ▹ (∀ n → Proc n → Proc n → Proc n)) → synch' (λ α {n} → f α n) (theLabel aR' , λ α → parProc Q (theX aR' α)) aP')
                 (later-ext (λ α → funExt (λ _ → funExt (λ p → (funExt (λ q → ih α .comm∣∣X {P = p})))))))))
         ∙ sym (bind-map R _ _)))
 
@@ -206,14 +206,14 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
 
   synchsynchF : ∀ {n} (P : F' n (\ _ → Proc)) Q R →
      synchF P (synchF Q R) ≡ ø
-  synchsynchF P Q R = cong′ (bind P) (funExt \ a' → bind-bind Q _ _ ∙ cong′ (bind Q) (funExt \ b' → bind-bind R _ _ ∙ cong′ (bind R)
+  synchsynchF P Q R = congS (bind P) (funExt \ a' → bind-bind Q _ _ ∙ congS (bind Q) (funExt \ b' → bind-bind R _ _ ∙ congS (bind R)
     (funExt \ c' → synchsynch b' c' a') ∙ bind-ø R) ∙ bind-ø Q) ∙ bind-ø P
 
   step-LL : ∀ {n} P Q R →
     stepL {n} (stepL P Q) R ≡ stepL P (parProc Q R)
   step-LL {n} P Q R =
     mapmapP∞ _ _ P
-    ∙ cong′ (λ f → mapP∞ f P) (funExt (λ { (a , P') →
+    ∙ congS (λ f → mapP∞ f P) (funExt (λ { (a , P') →
         StepPath refl (later-ext (λ α →  assoc∣∣X (ih α) {P = _}{Q}{R}))}))
 
   assoc-synchF : ∀ {n} (P : F' n (\ _ → Proc)) Q R →
@@ -223,19 +223,19 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
 
   assoc-par : ∀ {n} {P Q R : Proc n} → parProc (parProc P Q) R ≡ parProc P (parProc Q R)
   assoc-par {n}{P}{Q}{R} =
-   cong₂ parProc (cong′ (λ x → isCCS-alg.parX (x n) P Q) (fix-eq ProcCCS-algF)) refl
-   ∙ cong′ (λ x → isCCS-alg.parX (x n) (isCCS-alg.parX (fix-eq ProcCCS-algF i1 n) P Q) R) (fix-eq ProcCCS-algF)
+   cong₂ parProc (congS (λ x → isCCS-alg.parX (x n) P Q) (fix-eq ProcCCS-algF)) refl
+   ∙ congS (λ x → isCCS-alg.parX (x n) (isCCS-alg.parX (fix-eq ProcCCS-algF i1 n) P Q) R) (fix-eq ProcCCS-algF)
    ∙ cong Fold (sym (assoc _ _ _ ∙ assoc _ _ _ ∙ assoc _ _ _)
                 ∙ cong₂ _∪_
                     (step-LL (Unfold P) Q R
-                     ∙ cong′ (λ f → mapP∞ f (Unfold P)) (funExt (λ P' →
-                             StepPath refl (later-ext (λ α → cong₂ parProc refl (cong′ (λ x → isCCS-alg.parX (x n) Q R) (fix-eq ProcCCS-algF)))))))
+                     ∙ congS (λ f → mapP∞ f (Unfold P)) (funExt (λ P' →
+                             StepPath refl (later-ext (λ α → cong₂ parProc refl (congS (λ x → isCCS-alg.parX (x n) Q R) (fix-eq ProcCCS-algF)))))))
                     (cong₂ _∪_ (step-LR P (Unfold Q) R)
                       (comm _ _ ∙ sym (assoc _ _ _)
                        ∙ cong₂ _∪_
                            (sym (step-RR P Q (Unfold R)
-                            ∙ cong′ (λ f → mapP∞ f (Unfold R)) (funExt (λ R' →
-                                    StepPath refl (later-ext (λ α → cong₂ parProc (cong′ (λ x → isCCS-alg.parX (x n) P Q) (fix-eq ProcCCS-algF)) refl))))))
+                            ∙ congS (λ f → mapP∞ f (Unfold R)) (funExt (λ R' →
+                                    StepPath refl (later-ext (λ α → cong₂ parProc (congS (λ x → isCCS-alg.parX (x n) P Q) (fix-eq ProcCCS-algF)) refl))))))
                            (comm _ _
                             ∙ cong₂ _∪_
                                 (synchF-L (Unfold P) (Unfold Q) R ∙ sym (bind-comm _ (stepL (Unfold Q) R) (Unfold P)))
@@ -258,27 +258,27 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
                             ∙ cong₂ _∪_ refl (bind-comm _ (Unfold (isCCS-alg.parX (fix-eq ProcCCS-algF i1 n) Q R)) (Unfold P))))
                      ∙ assoc _ _ _ ∙ assoc _ _ _)
                 ∙ assoc _ _ _)
-   ∙ sym (cong′ (λ x → isCCS-alg.parX (x n) P (isCCS-alg.parX (fix-eq ProcCCS-algF i1 n) Q R)) (fix-eq ProcCCS-algF))
-   ∙ sym (cong₂ parProc refl (cong′ (λ x → isCCS-alg.parX (x n) Q R) (fix-eq ProcCCS-algF)))
+   ∙ sym (congS (λ x → isCCS-alg.parX (x n) P (isCCS-alg.parX (fix-eq ProcCCS-algF i1 n) Q R)) (fix-eq ProcCCS-algF))
+   ∙ sym (cong₂ parProc refl (congS (λ x → isCCS-alg.parX (x n) Q R) (fix-eq ProcCCS-algF)))
 
 -- The equation characterizing replication as iterated parallel composition.
   synch-! : ∀ {n} (P : Proc n)
     → stepL (synchF (Unfold P) (Unfold P)) (!Proc P) ≡ synchF (Unfold P) (Unfold (!Proc P))
   synch-! P =
     sym (unit _)
-    ∙ cong₂ _∪_ refl (sym (cong′ (λ P' → stepL P' (!Proc P)) (synchsynchF (Unfold P) (Unfold P) (Unfold P))))
+    ∙ cong₂ _∪_ refl (sym (congS (λ P' → stepL P' (!Proc P)) (synchsynchF (Unfold P) (Unfold P) (Unfold P))))
     ∙ cong₂ _∪_ (synchF-L (Unfold P) (Unfold P) (!Proc P) ∙ bind-comm _ (Unfold P) (stepL (Unfold P) (!Proc P)))
                 (synchF-L (Unfold P) (synchF (Unfold P) (Unfold P)) (!Proc P) ∙ bind-comm _ (Unfold P) (stepL (synchF (Unfold P) (Unfold P)) (!Proc P)))
     ∙ bind-comm _ (stepL (Unfold P) (!Proc P) ∪ stepL (synchF (Unfold P) (Unfold P)) (!Proc P)) (Unfold P)
-    ∙ cong′ (synchF (Unfold P)) (cong Unfold (sym (!Proc-eq {_}{P})))
+    ∙ congS (synchF (Unfold P)) (cong Unfold (sym (!Proc-eq {_}{P})))
 
   stepR-! : ∀ {n} {P : Proc n} → stepR P (Unfold (!Proc P)) ≡ Unfold (!Proc P)
   stepR-! {_}{P} =
     cong₂ mapP∞ (funExt (λ aP' → StepPath refl (later-ext (λ α → ih α .comm∣∣X {P = P})))) (refl {x = Unfold (!Proc P)})
     ∙ cong₂ stepL (cong Unfold (!Proc-eq {_}{P})) refl
     ∙ cong₂ _∪_
-        (step-LL (Unfold P) (!Proc P) P ∙ cong′ (stepL' (Unfold P)) (later-ext (λ α → ih α .comm∣∣X {P = !Proc P} ∙ sym (ih α .replX {P = P}))))
-        (step-LL (synchF (Unfold P) (Unfold P)) (!Proc P) P ∙ cong′ (stepL' (synchF (Unfold P) (Unfold P))) (later-ext (λ α → ih α .comm∣∣X {P = !Proc P} ∙ sym (ih α .replX {P = P}))))
+        (step-LL (Unfold P) (!Proc P) P ∙ congS (stepL' (Unfold P)) (later-ext (λ α → ih α .comm∣∣X {P = !Proc P} ∙ sym (ih α .replX {P = P}))))
+        (step-LL (synchF (Unfold P) (Unfold P)) (!Proc P) P ∙ congS (stepL' (synchF (Unfold P) (Unfold P))) (later-ext (λ α → ih α .comm∣∣X {P = !Proc P} ∙ sym (ih α .replX {P = P}))))
     ∙ cong Unfold (sym (!Proc-eq {P = P}))
 
   repl-par : ∀ {n} {P : Proc n} → !Proc P ≡ parProc P (!Proc P)
@@ -296,7 +296,7 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
        ≡⟨ cong₂ _∪_ (comm _ _) refl ⟩
        (stepL (Unfold P) (!Proc P) ∪ stepR P (Unfold (!Proc P))) ∪ synchF (Unfold P) (Unfold (!Proc P))
        ∎)
-    ∙ cong′ (λ x → isCCS-alg.parX (x _) P (isCCS-alg.!X (fix-eq ProcCCS-algF i0 _) P)) (sym (fix-eq ProcCCS-algF))
+    ∙ congS (λ x → isCCS-alg.parX (x _) P (isCCS-alg.!X (fix-eq ProcCCS-algF i0 _) P)) (sym (fix-eq ProcCCS-algF))
 
 -- Restriction of the nil process.
   ν-end : ∀ {n} → νProc endProc ≡ endProc {n}
@@ -317,12 +317,12 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
     νProc (Fold (stepL (Unfold P) (mapProc m _ ι Q)))
     ≡ Fold (stepL (Unfold (νProc P)) Q)
   ν-stepL {n}{P}{Q} =
-    cong′ (λ x → isCCS-alg.νX (x _) (Fold (stepL (Unfold P) (mapProc n _ ι Q)))) (fix-eq ProcCCS-algF)
+    congS (λ x → isCCS-alg.νX (x _) (Fold (stepL (Unfold P) (mapProc n _ ι Q)))) (fix-eq ProcCCS-algF)
     ∙ cong Fold
         (bind-map (Unfold P) _ _
          ∙ cong (bind (Unfold P)) (funExt (λ aP' → ν-stepL' aP' Q))
          ∙ sym (map-bind (Unfold P) _ _))
-    ∙ cong′ (λ x → Fold (stepL (Unfold (isCCS-alg.νX (x _) P)) Q)) (sym (fix-eq ProcCCS-algF))
+    ∙ congS (λ x → Fold (stepL (Unfold (isCCS-alg.νX (x _) P)) Q)) (sym (fix-eq ProcCCS-algF))
 
   ν-stepR' : ∀ {n} P (aQ : Step (\ n → ▹ Proc n) n) →
     stepν {n} (mapAct ι (theLabel aQ) , (λ α → parProc P (mapProc _ _ ι (theX aQ α))))
@@ -330,22 +330,22 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
   ν-stepR' P (`out a Q) with decName (ι a) (fresh _)
   ... | yes p = ⊥-rec (fresh-ι p)
   ... | no p =
-    cong′ η (StepPath (cong′ out (down-ι p)) (later-ext (λ α → ih α .ν∣∣X)))
+    congS η (StepPath (congS out (down-ι p)) (later-ext (λ α → ih α .ν∣∣X)))
   ν-stepR' P (`inp a Q) with decName (ι a) (fresh _)
   ... | yes p = ⊥-rec (fresh-ι p)
   ... | no p =
-    cong′ η (StepPath (cong′ inp (down-ι p)) (later-ext (λ α → ih α .ν∣∣X)))
-  ν-stepR' P (`τ Q) = cong′ η (StepPath refl (later-ext (λ α → ih α .ν∣∣X)))
+    congS η (StepPath (congS inp (down-ι p)) (later-ext (λ α → ih α .ν∣∣X)))
+  ν-stepR' P (`τ Q) = congS η (StepPath refl (later-ext (λ α → ih α .ν∣∣X)))
 
   ν-stepR : ∀ {m P Q} →
     νProc (Fold (stepR P (Unfold (mapProc m _ ι Q)))) ≡ Fold (stepR (νProc P) (Unfold Q))
   ν-stepR {m} {P} {Q} =
-    cong′ νProc (cong′ Fold (cong′ (stepR P) (mapProc'-eq' _ _ _ _)))
-    ∙ cong′ (λ x → isCCS-alg.νX (x _) (Fold (stepR P (mapProcF (next mapProc') m (suc m) ι (Unfold Q))))) (fix-eq ProcCCS-algF)
+    congS νProc (congS Fold (congS (stepR P) (mapProc'-eq' _ _ _ _)))
+    ∙ congS (λ x → isCCS-alg.νX (x _) (Fold (stepR P (mapProcF (next mapProc') m (suc m) ι (Unfold Q))))) (fix-eq ProcCCS-algF)
     ∙ cong Fold
-        (cong′ (λ x → bind x _) (mapmapP∞ _ _ (Unfold Q))
+        (congS (λ x → bind x _) (mapmapP∞ _ _ (Unfold Q))
          ∙ bind-map (Unfold Q) _ _
-         ∙ cong′ (bind (Unfold Q)) (funExt (ν-stepR' P))
+         ∙ congS (bind (Unfold Q)) (funExt (ν-stepR' P))
          ∙ sym (mapP∞-is-bind (Unfold Q)))
 
   ν-synch' : ∀ {n} aP aQ →
@@ -408,7 +408,7 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
     νProc (Fold (synchF (Unfold P) (Unfold (mapProc m _ ι Q))))
     ≡ Fold (synchF (Unfold (νProc P)) (Unfold Q))
   ν-synchF {n} P Q = 
-    cong′ (λ x → isCCS-alg.νX (x _) (Fold (synchF (Unfold P) (Unfold (mapProc _ _ ι Q)))))
+    congS (λ x → isCCS-alg.νX (x _) (Fold (synchF (Unfold P) (Unfold (mapProc _ _ ι Q)))))
           (fix-eq ProcCCS-algF)
     ∙ cong Fold
            (bind-bind (Unfold P) _ _
@@ -423,19 +423,19 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
                     ∙ sym (bind-∪ _ _ (stepν aP'))))
                 ∙ bind-comm _ (Unfold Q) (stepν aP')))
             ∙ sym (bind-bind (Unfold P) _ _))
-    ∙ cong′ (λ x → Fold (synchF (Unfold (isCCS-alg.νX (x _) P)) (Unfold Q)))
+    ∙ congS (λ x → Fold (synchF (Unfold (isCCS-alg.νX (x _) P)) (Unfold Q)))
             (sym (fix-eq ProcCCS-algF))      
 
   ν-par : ∀ {m P Q} → νProc (parProc P (mapProc m _ ι Q)) ≡ parProc (νProc P) Q
   ν-par {n}{P}{Q} =
-    cong′ νProc (cong′ (λ x → isCCS-alg.parX (x _) P (mapProc n _ ι Q)) (fix-eq ProcCCS-algF))
-    ∙ cong′ (λ x → isCCS-alg.νX (x _) (isCCS-alg.parX (fix-eq ProcCCS-algF i1 _) P (mapProc n _ ι Q))) (fix-eq ProcCCS-algF)
+    congS νProc (congS (λ x → isCCS-alg.parX (x _) P (mapProc n _ ι Q)) (fix-eq ProcCCS-algF))
+    ∙ congS (λ x → isCCS-alg.νX (x _) (isCCS-alg.parX (fix-eq ProcCCS-algF i1 _) P (mapProc n _ ι Q))) (fix-eq ProcCCS-algF)
     ∙ cong Fold
         (cong₂ _∪_ (cong₂ _∪_
-                      (cong Unfold (cong′ (λ x → isCCS-alg.νX (x _) (Fold (stepL (Unfold P) (mapProc n _ ι Q)))) (sym (fix-eq ProcCCS-algF)) ∙ (ν-stepL {P = P})))
-                      (cong Unfold (cong′ (λ x → isCCS-alg.νX (x _) (Fold (stepR P (Unfold (mapProc n _ ι Q))))) (sym (fix-eq ProcCCS-algF)) ∙ ν-stepR)))
-                   (cong Unfold (cong′ (λ x → isCCS-alg.νX (x _) (Fold (synchF (Unfold P) (Unfold (mapProc _ _ ι Q))))) (sym (fix-eq ProcCCS-algF)) ∙ ν-synchF P Q)))
-    ∙ cong′ (λ x → isCCS-alg.parX (x _) (νProc P) Q) (sym (fix-eq ProcCCS-algF))
+                      (cong Unfold (congS (λ x → isCCS-alg.νX (x _) (Fold (stepL (Unfold P) (mapProc n _ ι Q)))) (sym (fix-eq ProcCCS-algF)) ∙ (ν-stepL {P = P})))
+                      (cong Unfold (congS (λ x → isCCS-alg.νX (x _) (Fold (stepR P (Unfold (mapProc n _ ι Q))))) (sym (fix-eq ProcCCS-algF)) ∙ ν-stepR)))
+                   (cong Unfold (congS (λ x → isCCS-alg.νX (x _) (Fold (synchF (Unfold P) (Unfold (mapProc _ _ ι Q))))) (sym (fix-eq ProcCCS-algF)) ∙ ν-synchF P Q)))
+    ∙ congS (λ x → isCCS-alg.parX (x _) (νProc P) Q) (sym (fix-eq ProcCCS-algF))
 
 -- The equation stating that the order in which a process is
 -- restricted twice does not matter (again with some extra lemmata).
@@ -567,7 +567,7 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
     Fold (bind (bind (Unfold P) stepν) stepν)
       ≡⟨ cong Fold (bind-bind (Unfold P) stepν stepν) ⟩
     Fold (bind (Unfold P) (λ x → bind (stepν x) stepν))
-      ≡⟨ cong Fold (cong′ (bind (Unfold P)) (funExt stepν-swap)) ⟩
+      ≡⟨ cong Fold (congS (bind (Unfold P)) (funExt stepν-swap)) ⟩
     Fold (bind (Unfold P) (λ x → bind (stepν (mapSProc' _ _ swap x)) stepν))
       ≡⟨ cong Fold (sym (bind-bind (Unfold P) _ _)) ⟩
     Fold (bind (bind (Unfold P) (λ x → stepν (mapSProc' _ _ swap x))) stepν)
@@ -586,11 +586,11 @@ module _ (ih : ▹ StructCong ProcCCS-alg (mapProc-Inj _ _) _≡_) where
        { refl≈X = refl
        ; sym≈X = sym
        ; _∙≈X_ = _∙_
-       ; cong·X = cong′ (actProc _)
+       ; cong·X = congS (actProc _)
        ; cong⊕X = λ eq1 eq2 → cong₂ sumProc eq1 eq2
        ; cong∣∣X = λ eq1 eq2 → cong₂ parProc eq1 eq2
-       ; congνX = cong′ νProc
-       ; cong!X = cong′ !Proc
+       ; congνX = congS νProc
+       ; cong!X = congS !Proc
        ; unit⊕X = unit-sum
        ; comm⊕X = comm-sum 
        ; assoc⊕X = assoc-sum

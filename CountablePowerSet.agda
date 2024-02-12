@@ -7,7 +7,7 @@ open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 open import Cubical.Data.List as List
-open import Cubical.Data.Sum hiding (inl; inr) 
+open import Cubical.Data.Sum as ⊎ hiding (inl; inr)
 open import Cubical.Foundations.Everything hiding (assoc)
 open import Cubical.Functions.Logic as Logic
 open import Cubical.HITs.PropositionalTruncation as PT 
@@ -181,7 +181,7 @@ x ∈ trunc xs ys p q i j = isSetHProp (x ∈ xs) (x ∈ ys) (cong (x ∈_) p) (
 ∪-in-L = inl
 
 ∪-out : ∀ {A : Set} {P : P∞ A} {P' s} → ⟨ s ∈ (P ∪ P') ⟩ → ∥ ⟨ s ∈ P ⟩ ⊎ ⟨ s ∈ P' ⟩ ∥₁
-∪-out = PT.map (map-⊎ (λ x → x) snd)
+∪-out = PT.map (⊎.map (λ x → x) snd)
 
 ∪-in-R : ∀ {A : Set} {P : P∞ A} {P' s} → ⟨ s ∈ P' ⟩ → ⟨ s ∈ (P ∪ P') ⟩
 ∪-in-R s = inr (0 , s)

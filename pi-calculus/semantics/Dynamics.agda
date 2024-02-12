@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --guarded #-}
+{-# OPTIONS --cubical --guarded -WnoUnsupportedIndexedMatch #-}
 
 open import Cubical.Data.Sum hiding (inl; inr) 
 open import Cubical.Data.Empty renaming (rec to ⊥-rec)
@@ -323,7 +323,7 @@ stepν-out-fresh : ∀ {m}{ch : Name m}{R : ▹ Proc (suc m)}
 stepν-out-fresh {m} {ch} {R} with decName (ι ch) (fresh _) | decName (fresh m) (fresh m)
 ... | yes p | _ = ⊥-rec (fresh-ι p)
 ... | no _  | no ¬r = ⊥-rec (¬r refl)
-... | no ¬p | yes r = cong η (StepPath refl (cong′ bout (down-ι ¬p)) refl)
+... | no ¬p | yes r = cong η (StepPath refl (congS bout (down-ι ¬p)) refl)
 
 ν-in-pr : ∀{m n}{a' : Label _ (suc n)}
     (prf : Σ (Label m _) (isLabelι a'))
